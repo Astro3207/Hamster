@@ -5,12 +5,12 @@ record role {
 	skill atk_spell;
 };
 role[string] roles = {
-	"skins":	new role("",		$modifier[none],				$skill[spirit of nothing],		$skill[stuffed mortar shell]),
-	"boots":	new role("hot",		$modifier[hot spell damage],	$skill[spirit of cayenne],		$skill[stuffed mortar shell]),
-	"skulls":	new role("spooky",	$modifier[spooky spell damage],	$skill[spirit of wormwood],		$skill[stuffed mortar shell]),
-	"eyes":		new role("cold",	$modifier[cold spell damage],	$skill[spirit of peppermint],	$skill[stuffed mortar shell]),
-	"crotches":	new role("sleaze",	$modifier[sleaze spell damage],	$skill[spirit of bacon grease],	$skill[stuffed mortar shell]),
-	"guts":		new role("stench",	$modifier[stench spell damage],	$skill[spirit of garlic],		$skill[stuffed mortar shell]),
+	"skins":	new role("",		$modifier[lantern],				$skill[spirit of nothing],		$skill[toynado]),
+	"boots":	new role("hot",		$modifier[hot spell damage],	$skill[spirit of cayenne],		$skill[awesome balls of fire]),
+	"skulls":	new role("spooky",	$modifier[spooky spell damage],	$skill[spirit of wormwood],		$skill[raise backup dancer]),
+	"eyes":		new role("cold",	$modifier[cold spell damage],	$skill[spirit of peppermint],	$skill[snowclone]),
+	"crotches":	new role("sleaze",	$modifier[sleaze spell damage],	$skill[spirit of bacon grease],	$skill[grease lightning]),
+	"guts":		new role("stench",	$modifier[stench spell damage],	$skill[spirit of garlic],		$skill[eggsplosion]),
 	"scarehobo":new role("",		$modifier[none],				$skill[spirit of nothing],		$skill[stuffed mortar shell]),
 	"cagebot":	new role("",		$modifier[none],				$skill[spirit of nothing],		$skill[stuffed mortar shell])
 };
@@ -120,6 +120,14 @@ void setup() {
 		+ "skill cleesh \n"
 		+ "attack with weapon";
 	write_ccs(ccs, "cleesh free runaway");
+
+	if (have_skill($skill[stuffed mortar shell])){
+		if (item_amount($item[seal tooth]) == 0)
+			cli_execute("acquire seal tooth");
+		buffer auto_parts = "skill stuffed mortar shell \n"
+			+ "item seal tooth";
+			write_ccs(auto_parts, "auto_parts");
+	}
 	set_property("battleAction", "custom combat script");
 	set_auto_attack(0);
 
@@ -344,24 +352,36 @@ void prep(string override) {
 	try {
 		if (get_property("parts_collection") != override)
 			set_property("parts_collection", override);
-		if (!(outfit(get_property("parts_collection")))) {
-			print(`No outfit named {get_property("parts_collection")} (capitalization matters), wearing a generic outfit`, "blue");
-			waitq(3);
-			estimated_spelldmg = ((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (35 + (0.35 * my_buffedstat($stat[mysticality])) + numeric_modifier(roles[get_property("parts_collection")].ele_mod) + numeric_modifier($modifier[spell damage])) * max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)));
-			spelldmgp_value = ((((numeric_modifier($modifier[Spell Damage Percent]) + 100 + 100)/100) * (35 + (0.35 * my_buffedstat($stat[mysticality])) + numeric_modifier($modifier[spell damage]) + numeric_modifier($modifier[hot spell damage]))) - estimated_spelldmg)/((((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (35 + (0.35 * (my_buffedstat($stat[mysticality])+100)) + numeric_modifier($modifier[spell damage]) + numeric_modifier($modifier[hot spell damage]))) - estimated_spelldmg);
-			maximize(`2.8 {roles[get_property("parts_collection")].ele} spell damage, {spelldmgp_value} spell damage percent, mys, -1000 lantern`, false);
-		}
-		estimated_spelldmg = ((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (35 + (0.35 * my_buffedstat($stat[mysticality])) + numeric_modifier(roles[get_property("parts_collection")].ele_mod) + numeric_modifier($modifier[spell damage])) * max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)));
 		if (have_skill($skill[Flavour of Magic]))
 			use_skill(roles[get_property("parts_collection")].spirit_of_ele);
+		int base_spellD = 32;
+		float myst_boost = 0.35;
 		if (!set_ccs(get_property("parts_collection"))) {
 			print(`No custom combat script named {get_property("parts_collection")} (capitalization matters), setting auto attack to {roles[get_property("parts_collection")].atk_spell}`, "blue");
-			waitq(3);
-			if (!have_skill(roles[get_property("parts_collection")].atk_spell))
-				abort(`Missing skill {roles[get_property("parts_collection")].atk_spell}, please set a ccs named {get_property("parts_collector")}`);
-			else
-				set_property("battleAction", roles[get_property("parts_collection")].atk_spell);
+			if (get_property("parts_collection") != "scarehobo")
+				waitq(3);
+			if (!set_ccs("auto_parts") || !have_skill($skill[Flavour of Magic])){
+				if (!have_skill(roles[get_property("parts_collection")].atk_spell)){
+					abort(`Missing skill {roles[get_property("parts_collection")].atk_spell}, please set a ccs named {get_property("parts_collector")}`);
+				} else {
+					base_spellD = 35;
+					myst_boost = 0.35;
+					set_property("battleAction", roles[get_property("parts_collection")].atk_spell);
+				}
+			} else {
+				base_spellD = 32;
+				myst_boost = 0.5;
+			}
 		}
+		if (!(outfit(get_property("parts_collection")))) {
+			print(`No outfit named {get_property("parts_collection")} (capitalization matters), wearing a generic outfit`, "blue");
+			if (get_property("parts_collection") != "scarehobo")
+				waitq(3);
+			estimated_spelldmg = ((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier(roles[get_property("parts_collection")].ele_mod) + numeric_modifier($modifier[spell damage])) * max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)));
+			spelldmgp_value = ((((numeric_modifier($modifier[Spell Damage Percent]) + 100 + 100)/100) * (base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier($modifier[spell damage]) + numeric_modifier(roles[get_property("parts_collection")].ele_mod))) - estimated_spelldmg)/((((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (base_spellD + (myst_boost * (my_buffedstat($stat[mysticality])+100)) + numeric_modifier($modifier[spell damage]) + numeric_modifier(roles[get_property("parts_collection")].ele_mod))) - estimated_spelldmg);
+			maximize(`2.8 {roles[get_property("parts_collection")].ele} spell damage, {spelldmgp_value} spell damage percent, mys, -1000 lantern`, false);
+		}
+		estimated_spelldmg = ((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier(roles[get_property("parts_collection")].ele_mod) + numeric_modifier($modifier[spell damage])) * max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)));
 		set_property("currentMood", get_property("parts_collector"));
 		if ((estimated_spelldmg < ($monster[normal hobo].monster_hp() + 100) || my_buffedstat($stat[moxie]) < ($monster[normal hobo].monster_attack() + 10)) && get_property("IveGotThis") != "true") {
 			if (estimated_spelldmg < ($monster[normal hobo].monster_hp() + 100))
@@ -370,6 +390,7 @@ void prep(string override) {
 				print("You have " + my_buffedstat($stat[moxie]) + " moxie, but you need at least " + ($monster[normal hobo].monster_attack() + 10) + " moxie to safely adventure at town square");
 			abort("It seems you failed one of the stat checks. Condider creating mood that boosts spell damage percent, mainstat, or minimizes ML. If you would like to skip this safety check type \"IveGotThis = true\", but I wouldn't reccomend it TBH");
 		}
+		print("Estimated spell damage is " + estimated_spelldmg + " base spell damage is " + base_spellD + " Myst boost is " + myst_boost);
 	}
 	finally
 		if (get_property("parts_collection") != remember)
@@ -391,15 +412,15 @@ void phase_one() {
 	if (mapimage() <= 6) { //phase 1 collect 106 hobo parts
 		if (roles contains get_property("parts_collection") && !($strings[scarehobo, cagebot] contains get_property("parts_collection"))) {
 			prep();
-			int parts_left = 106 - richard("boots");
-			while (richard("boots") < 106) {
+			int parts_left = 106 - richard(get_property("parts_collection"));
+			while (richard(get_property("parts_collection")) < 106) {
 				adventure(1, $location[Hobopolis Town Square]);
 				if (get_property("_lastCombatLost") == "true") //KoL Mafia detected that the last combat was lost so that the script is aborted and a whole bunch of adventures aren't wasted
 					abort ("It appears you lost the last combat, look into that");
 				if (!LastAdvTxt().contains_text(rich_takes[get_property("parts_collection")]))
 					abort(rich_takes[get_property("parts_collection")].replace_string("takes", "failed to take"));
-				parts_left = 106 - richard("boots");
-				print("Boots left to collect: " + parts_left);
+				parts_left = 106 - richard(get_property("parts_collection"));
+				print(get_property("parts_collection") + " left to collect: " + parts_left);
 			}
 		}
 
