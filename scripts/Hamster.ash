@@ -668,7 +668,5 @@ void main() {
 		set_property("chatbotScript", get_property("chatbotScriptStorage"));
 		set_property("battleAction", "custom combat script");
 		set_property("currentMood", "apathetic");
-	}else {
-		abort("Uh oh, there was a (hopefully) one time bug, please rerun hamster");
 	}
 }
