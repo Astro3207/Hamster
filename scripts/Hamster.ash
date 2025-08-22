@@ -210,6 +210,11 @@ void sewer() {
 		set_property("choiceAdventure197", 1);
 		maximize("-combat", false);
 		repeat {
+            if (sewer_progress <= 10 && get_property("HalfnHalf") == "true") {
+				set_property("lucky_sewers", "true");
+				set_property("adv_checked", "true");
+				break;
+			}
 			int[item] testitems = {
 				$item[sewer wad]:				1,
 				$item[unfortunate dumplings]:	1,
@@ -260,11 +265,6 @@ void sewer() {
 			}
 			if (get_property("_lastCombatLost") == "true") //KoL Mafia detected that the last combat was lost so that the script is aborted and a whole bunch of adventures aren't wasted
 				abort ("It appears you lost the last combat, look into that");
-			if (sewer_progress <= 10 && get_property("HalfnHalf") == "true") {
-				set_property("lucky_sewers", "true");
-				set_property("adv_checked", "true");
-				break;
-			}
 		} until (get_property("lastEncounter") == "At Last!");
 	}
 
