@@ -123,6 +123,19 @@ void setup() {
 	set_property("battleAction", "custom combat script");
 	set_auto_attack(0);
 
+string sewer_image = visit_url("clan_hobopolis.php");
+if ((get_property("initialized") == "1") || get_property("initialized") == ""){
+    if (contains_text(sewer_image,"otherimages/hobopolis/sewer3.gif")){
+        if (user_confirm("The script has detected that you have not been given a role and you have already started sewers. Press yes to continue to assign your role, press no to abort and figure out what happened") == false) {
+            abort();
+        }
+    }
+} else if(contains_text(sewer_image,"otherimages/hobopolis/sewer1.gif") && !contains_text(sewer_image, "otherimages/hobopolis/sewer3.gif")){
+    if (user_confirm("The script has detected that your last hamster run may have been incomplete, press yes if you have not adventured in sewers yet and need to set up, press no if you have already set up")){
+        set_property("initialized", 1);
+    }
+}
+
 	switch (to_int(get_property("initialized"))) {
 		case 0:
 		case 1:
@@ -149,6 +162,8 @@ void setup() {
 			set_property("initialized", 4); //to skip future initializations
 			break;
 		case 2:
+            if (contains_text(sewer_image, "otherimages/hobopolis/sewer3.gif") && !contains_text(sewer_image, "otherimages/hobopolis/deeper.gif"))
+                break;
 			set_property("sewer_progress", 100); //saying that there's 100 chieftans until sewers is cleared
 			break;
 		case 3:
@@ -289,7 +304,7 @@ void sewer() {
 			maximize("weapon damage", false);
 		}
 		if (!set_ccs("sewers")) {
-			print("No custom combat script, setting auto attack to weapon");
+			print("No custom combat script, setting auto attack to weapon", "blue");
 			waitq(3);
 			set_property("battleAction", "attack with weapon");
 		}
@@ -301,10 +316,17 @@ void sewer() {
 			adventure(1, $location[A Maze of Sewer Tunnels]);
 			if (get_property("_lastCombatLost") == "true") //KoL Mafia detected that the last combat was lost so that the script is aborted and a whole bunch of adventures aren't wasted
 				abort ("It appears you lost the last combat, look into that");
+            if (contains_text(get_property("_lastCombatActions"),"sk15"))
+                abort ("Last combat detected CLEESH against CHUM Chieftan, look into that");
 			sewer_progress -= 1; //doing some calculations on how many chieftans are left
 			set_property("sewer_progress", sewer_progress);
 			print("C.H.U.M Chieftans left: " + sewer_progress, "orange");
 			town_map = visit_url("clan_hobopolis.php?place=2");
+            if(get_property("sewer_progress") == "0"){
+                adventure(1, $location[A Maze of Sewer Tunnels]);
+                if (get_property("lastEncounter") != "At Last!")
+                    abort("Excpected At Last! instead got" + get_property("lastEncounter"));
+            }
 		} until (contains_text(town_map , "clan_hobopolis.php?place=3") || to_int(get_property("sewer_progress")) <= 0); //checks if town map is open or the calculations say there are 0 chieftains left
 		print("Sewers shouuuuuld be complete, I think", "orange");
 		set_property("battleAction", "custom combat script");
