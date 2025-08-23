@@ -551,9 +551,9 @@ void phase_three() {
 		}
 	maximize("-combat", false);
 	repeat {
+		cli_execute("/switch hobopolis");
 		if (tent_open()) {
 			start_adv = my_adventures();
-			cli_execute("/switch hobopolis");
 			foreach cl, it in instruments
 				if (my_class() == cl && get_property("is_mosher") != "true" && !maximize(`-combat, equip {it}`, false))
 					abort("failed to equip a hobo instrument...");
@@ -674,6 +674,7 @@ void phase_three() {
 			} else {
 				while (!tent_open() || mapimage() < 25) {
 					print("Waiting for tent to open");
+					cli_execute("/switch hobopolis");
 					waitq(10);
 				}
 			}
