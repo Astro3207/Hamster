@@ -364,7 +364,7 @@ void prep(string override) {
 					abort(`Missing skill {roles[get_property("parts_collection")].atk_spell}, please set a ccs named {get_property("parts_collection")}`);
 				} else {
 					base_spellD = 10;
-					myst_boost = 0.3;
+					myst_boost = 0.1;
 					set_property("battleAction", roles[get_property("parts_collection")].atk_spell);
 				}
 			} else {
