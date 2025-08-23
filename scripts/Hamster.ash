@@ -5,12 +5,12 @@ record role {
 	skill atk_spell;
 };
 role[string] roles = {
-	"skins":	new role("",		$modifier[lantern],				$skill[spirit of nothing],		$skill[toynado]),
-	"boots":	new role("hot",		$modifier[hot spell damage],	$skill[spirit of cayenne],		$skill[awesome balls of fire]),
-	"skulls":	new role("spooky",	$modifier[spooky spell damage],	$skill[spirit of wormwood],		$skill[raise backup dancer]),
-	"eyes":		new role("cold",	$modifier[cold spell damage],	$skill[spirit of peppermint],	$skill[snowclone]),
-	"crotches":	new role("sleaze",	$modifier[sleaze spell damage],	$skill[spirit of bacon grease],	$skill[grease lightning]),
-	"guts":		new role("stench",	$modifier[stench spell damage],	$skill[spirit of garlic],		$skill[eggsplosion]),
+	"skins":	new role("",		$modifier[lantern],				$skill[spirit of nothing],		$skill[Wassail]),
+	"boots":	new role("hot",		$modifier[hot spell damage],	$skill[spirit of cayenne],		$skill[Conjure Relaxing Campfire]),
+	"skulls":	new role("spooky",	$modifier[spooky spell damage],	$skill[spirit of wormwood],		$skill[Creepy Lullaby]),
+	"eyes":		new role("cold",	$modifier[cold spell damage],	$skill[spirit of peppermint],	$skill[Maximum Chill]),
+	"crotches":	new role("sleaze",	$modifier[sleaze spell damage],	$skill[spirit of bacon grease],	$skill[Inappropriate Backrub]),
+	"guts":		new role("stench",	$modifier[stench spell damage],	$skill[spirit of garlic],		$skill[Mudbath]),
 	"scarehobo":new role("",		$modifier[none],				$skill[spirit of nothing],		$skill[stuffed mortar shell]),
 	"cagebot":	new role("",		$modifier[none],				$skill[spirit of nothing],		$skill[stuffed mortar shell])
 };
@@ -226,7 +226,7 @@ void sewer() {
 					abort("It appears you lost the last combat, look into that");
 			} until (last_choice() == 211 || last_choice() == 212);
 		}
-		if (!user_confirm("Press yes when you know cagebot is caged"))
+		if (!user_confirm("Press yes when you know cagebot is caged \n one person can say /w ASSbot cage " + get_clan_name()))
 			abort();
 		set_property("choiceAdventure198", 1);
 		set_property("choiceAdventure199", 1);
@@ -336,7 +336,7 @@ void sewer() {
                     abort("Excpected At Last! instead got" + get_property("lastEncounter"));
             }
 		} until (contains_text(town_map , "clan_hobopolis.php?place=3") || to_int(get_property("sewer_progress")) <= 0); //checks if town map is open or the calculations say there are 0 chieftains left
-		print("Sewers shouuuuuld be complete, I think", "orange");
+		print("Sewers complete! (I think)", "orange");
 		set_property("battleAction", "custom combat script");
 	}
 	print((start_adv - my_adventures()) + " adventures spent in the sewers");
@@ -354,28 +354,31 @@ void prep(string override) {
 			set_property("parts_collection", override);
 		if (have_skill($skill[Flavour of Magic]))
 			use_skill(roles[get_property("parts_collection")].spirit_of_ele);
-		int base_spellD = 32;
-		float myst_boost = 0.35;
+		int base_spellD = 21;
+		float myst_boost = 0.3;
 		if (!set_ccs(get_property("parts_collection"))) {
-			print(`No custom combat script named {get_property("parts_collection")} (capitalization matters), setting auto attack to {roles[get_property("parts_collection")].atk_spell}`, "blue");
-			if (get_property("parts_collection") != "scarehobo")
+			if (!contains_text(override,"s"))
 				waitq(3);
-			if (!set_ccs("auto_parts") || !have_skill($skill[Flavour of Magic])){
+			print(`No custom combat script named {get_property("parts_collection")} (capitalization matters) or stuffed mortar shell, setting auto attack to stuffed mortar shell (or hobopolis skill if you don\'t have that)`, "blue");
+			if (!set_ccs("auto_parts") || !have_skill($skill[Flavour of Magic]) || get_property("parts_collection") == "skins"){
 				if (!have_skill(roles[get_property("parts_collection")].atk_spell)){
-					abort(`Missing skill {roles[get_property("parts_collection")].atk_spell}, please set a ccs named {get_property("parts_collector")}`);
+					abort(`Missing skill {roles[get_property("parts_collection")].atk_spell}, please set a ccs named {get_property("parts_collection")}`);
 				} else {
-					base_spellD = 35;
-					myst_boost = 0.35;
+					base_spellD = 10;
+					myst_boost = 0.3;
 					set_property("battleAction", roles[get_property("parts_collection")].atk_spell);
 				}
 			} else {
+				set_property("battleAction", "custom combat script");
 				base_spellD = 32;
 				myst_boost = 0.5;
 			}
+		} else {
+			set_property("battleAction", "custom combat script");
 		}
 		if (!(outfit(get_property("parts_collection")))) {
 			print(`No outfit named {get_property("parts_collection")} (capitalization matters), wearing a generic outfit`, "blue");
-			if (get_property("parts_collection") != "scarehobo")
+			if (!contains_text(override,"s"))
 				waitq(3);
 			estimated_spelldmg = ((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier(roles[get_property("parts_collection")].ele_mod) + numeric_modifier($modifier[spell damage])) * max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)));
 			spelldmgp_value = ((((numeric_modifier($modifier[Spell Damage Percent]) + 100 + 100)/100) * (base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier($modifier[spell damage]) + numeric_modifier(roles[get_property("parts_collection")].ele_mod))) - estimated_spelldmg)/((((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (base_spellD + (myst_boost * (my_buffedstat($stat[mysticality])+100)) + numeric_modifier($modifier[spell damage]) + numeric_modifier(roles[get_property("parts_collection")].ele_mod))) - estimated_spelldmg);
@@ -495,13 +498,14 @@ void phase_two() {
 			foreach n, needed in int[int]{11:60, 10:44, 9:28, 8:12, 7:0} {
 				int total = 0;
 				foreach part in roles
-					if (!($strings[scarehobo, cagebot] contains part))
+					if (!($strings[scarehobo, cagebot] contains part)){
 						total += min(n, richard(part));
-				if (total >= needed) {
-					scobo_to_use = n;
-					set_property("scobo_needed", `{n}`);
-					break;
-				}
+						if (total >= needed) {
+							scobo_to_use = n;
+							set_property("scobo_needed", `{n}`);
+							break;
+						}
+					}
 			}
 		else
 			scobo_to_use = to_int(get_property("scobo_needed"));
@@ -514,8 +518,6 @@ void phase_two() {
 				if (get_property("_lastCombatLost") == "true")
 					abort ("It appears you lost the last combat, look into that");
 			}
-//		set_property("battleAction", "custom combat script");
-//		set_property("currentMood", "");
 		set_property("scobo_needed", "");
 		visit_url("clan_hobopolis.php?preaction=simulacrum&place=3&qty="+scobo_to_use);
 		set_property("tent_stage", "stage1");
@@ -530,13 +532,13 @@ void phase_two() {
 						abort(`Richard failed to take {part}`);
 					if (get_property("_lastCombatLost") == "true")
 						abort ("It appears you lost the last combat, look into that");
+					if (tent_open())
+						break;
 				}
 		}
 		end_adv = my_adventures();
 		adv_spent = start_adv - end_adv;
 		print(adv_spent + " adventures spend opening the next tent");
-//		set_property("battleAction", "custom combat script");
-//		set_property("currentMood", "");
 		set_property ("tent_stage", "finished");
 	}
 }
@@ -552,6 +554,7 @@ void phase_three() {
 	repeat {
 		if (tent_open()) {
 			start_adv = my_adventures();
+			cli_execute("/switch hobopolis");
 			foreach cl, it in instruments
 				if (my_class() == cl && get_property("is_mosher") != "true" && !maximize(`-combat, equip {it}`, false))
 					abort("failed to equip a hobo instrument...");
@@ -585,21 +588,29 @@ void phase_three() {
 					}
 					run_choice(2);
 					run_choice(2);
-					cli_execute("/hobopolis moshed");
+					waitq(5);
+					while (get_property("moshed") != "true") {
+						print("Waiting until KoL recognizes the mosh", "blue");
+						waitq(5);
+					}
 				}
+				end_adv = my_adventures();
+				adv_spent = start_adv - end_adv;
+				print(adv_spent + " adventures spend doing mosh");
+				print(num_mosh() + " mosh(es) executed", "blue");
 			}
-			end_adv = my_adventures();
-			adv_spent = start_adv - end_adv;
-			print(adv_spent + " adventures spend doing mosh");
-			print(num_mosh() + " mosh(es) executed", "blue");
 		}
 		if (!tent_open()) {
-			while (to_int(get_property("people_unstaged")) < 6 && get_property("moshed") == "true") {
-				print("waiting for everyone to get off stage");
-				waitq(5);
-			}
 			if (get_property("parts_collection") != "scarehobo"){
 				set_property("people_staged", "0");
+				set_property("moshed", "false");
+			} else {
+				while (to_int(get_property("people_unstaged")) < 6 && get_property("moshed") == "true") {
+					print("waiting for everyone to get off stage");
+					waitq(5);
+				}
+				set_property("people_staged", "0");
+				set_property("people_unstaged", "0");
 				set_property("moshed", "false");
 			}
 			start_adv = my_adventures();
@@ -611,13 +622,15 @@ void phase_three() {
 						foreach n, needed in int[int]{10:60, 9:44, 8:28, 7:12, 6:0} { // keys 1 less than last time
 							int total = 0;
 							foreach part in roles
-								if (!($strings[scarehobo, cagebot] contains part))
+								if (!($strings[scarehobo, cagebot] contains part)){
 									total += min(n, richard(part));
-							if (total >= needed) {
-								scobo_to_use = n;
-								set_property("scobo_needed", `{n}`);
-								break;
-							}
+									print("total is " + total + " and there are " + richard(part) + " " +(part));
+									if (total >= needed) {
+										scobo_to_use = n;
+										set_property("scobo_needed", `{n}`);
+										break;
+									}
+								}
 						}
 					else
 						scobo_to_use = to_int(get_property("scobo_needed"));
@@ -630,52 +643,23 @@ void phase_three() {
 							if (get_property("_lastCombatLost") == "true")
 								abort ("It appears you lost the last combat, look into that");
 						}
-//					set_property("battleAction", "custom combat script");
-//					set_property("currentMood", "boots");
 					set_property("scobo_needed","");
 					visit_url("clan_hobopolis.php?preaction=simulacrum&place=3&qty="+scobo_to_use);
 					set_property("tent_stage", "stage1");
 				}
 				if (get_property("tent_stage") == "stage1") {
-					cli_execute("/switch hobopolis");
 					while (!tent_open()) {
-						if (richard("boots") == min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins"))) {
-							prep();
-							adventure(1, $location[Hobopolis Town Square]);
-							if (!contains_text(LastAdvTxt(), "Richard takes a charred hobo boots")) {
-								abort ("Richard failed to get boots, look into that");
+						foreach part in roles if (!($strings[scarehobo, cagebot] contains part))
+							if (richard(part) == min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins"))) {
+								prep(part);
+								adventure(1, $location[Hobopolis Town Square]);
+								if (!contains_text(LastAdvTxt(), rich_takes[part]))
+									abort(`Richard failed to take {part}`);
+								if (get_property("_lastCombatLost") == "true")
+									abort ("It appears you lost the last combat, look into that");
+								if (tent_open())
+									break;
 							}
-						} else if (richard("eyes") == min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins"))) {
-						prep();
-							adventure(1, $location[Hobopolis Town Square]);
-							if (!contains_text(LastAdvTxt(), "Richard takes a frozen hobo eyeballs")) {
-								abort ("Richard failed to get eyes, look into that");
-							}
-						} else if (richard("guts") == min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins"))) {
-							prep();
-							adventure(1, $location[Hobopolis Town Square]);
-							if (!contains_text(LastAdvTxt(), "Richard takes a stinking hobo guts")) {
-								abort ("Richard failed to get guts, look into that");
-							}
-						} else if (richard("skulls") == min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins"))) {
-							prep();
-							adventure(1, $location[Hobopolis Town Square]);
-							if (!contains_text(LastAdvTxt(), "Richard takes a creepy hobo skull")) {
-								abort ("Richard failed to get skull, look into that");
-							}
-						} else if (richard("crotches") == min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins"))) {
-							prep();
-							adventure(1, $location[Hobopolis Town Square]);
-							if (!contains_text(LastAdvTxt(), "Richard takes a hobo crotch")) {
-								abort ("Richard failed to get crotches, look into that");
-							}
-						} else if (richard("skins") == min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins"))) {
-							prep();
-							adventure(1, $location[Hobopolis Town Square]);
-							if (!contains_text(LastAdvTxt(), "Richard takes a hobo skin")) {
-								abort ("Richard failed to get skins, look into that");
-							}
-						}
 						set_property("battleAction", "custom combat script");
 						set_property("currentMood", "boots");
 						if (num_mosh() >= 8 && min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins")) >= 1) {
@@ -711,7 +695,7 @@ void main() {
 		set_property("chatbotScript", get_property("chatbotScriptStorage"));
 		set_property("battleAction", "custom combat script");
 		set_property("currentMood", "apathetic");
-	}else {
+	} else {
 		abort("Uh oh, there was a (hopefully) one time bug, please rerun hamster");
 	}
 }
