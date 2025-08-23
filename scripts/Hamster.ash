@@ -385,7 +385,7 @@ void prep(string override) {
 			maximize(`2.8 {roles[get_property("parts_collection")].ele} spell damage, {spelldmgp_value} spell damage percent, mys, -1000 lantern`, false);
 		}
 		estimated_spelldmg = ((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier(roles[get_property("parts_collection")].ele_mod) + numeric_modifier($modifier[spell damage])) * max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)));
-		set_property("currentMood", get_property("parts_collector"));
+		set_property("currentMood", get_property("parts_collection"));
 		if ((estimated_spelldmg < ($monster[normal hobo].monster_hp() + 100) || my_buffedstat($stat[moxie]) < ($monster[normal hobo].monster_attack() + 10)) && get_property("IveGotThis") != "true") {
 			if (estimated_spelldmg < ($monster[normal hobo].monster_hp() + 100))
 				print("You are expected to do " + estimated_spelldmg + " damage when casting the hobopolis spell, while you need to deal " + ($monster[normal hobo].monster_hp() + 100) + " damage to guarentee a hobo part from normal hobos.");
@@ -393,7 +393,6 @@ void prep(string override) {
 				print("You have " + my_buffedstat($stat[moxie]) + " moxie, but you need at least " + ($monster[normal hobo].monster_attack() + 10) + " moxie to safely adventure at town square");
 			abort("It seems you failed one of the stat checks. Condider creating mood that boosts spell damage percent, mainstat, or minimizes ML. If you would like to skip this safety check type \"IveGotThis = true\", but I wouldn't reccomend it TBH");
 		}
-		print("Estimated spell damage is " + estimated_spelldmg + " base spell damage is " + base_spellD + " Myst boost is " + myst_boost);
 	}
 	finally
 		if (get_property("parts_collection") != remember)
@@ -583,7 +582,6 @@ void phase_three() {
 				if (get_property("is_mosher") == "true") {
 					while (to_int(get_property("people_staged")) < 6) {
 						print("At tent, waiting until everyone is staged before moshing", "blue");
-						print("If there is an incorrect count on the number of people staged, type \"set people_staged = #\"", "blue");
 						waitq(5);
 					}
 					run_choice(2);
@@ -597,7 +595,7 @@ void phase_three() {
 				end_adv = my_adventures();
 				adv_spent = start_adv - end_adv;
 				print(adv_spent + " adventures spend doing mosh");
-				print(num_mosh() + " mosh(es) executed", "blue");
+				print(num_mosh() + " moshes executed", "blue");
 			}
 		}
 		if (!tent_open()) {
@@ -624,7 +622,6 @@ void phase_three() {
 							foreach part in roles
 								if (!($strings[scarehobo, cagebot] contains part)){
 									total += min(n, richard(part));
-									print("total is " + total + " and there are " + richard(part) + " " +(part));
 									if (total >= needed) {
 										scobo_to_use = n;
 										set_property("scobo_needed", `{n}`);
@@ -673,7 +670,7 @@ void phase_three() {
 				}
 				end_adv = my_adventures();
 				adv_spent = start_adv - end_adv;
-				print(adv_spent + " adventures spend opening the next tent");
+				print(adv_spent + " adventures spent opening the next tent");
 			} else {
 				while (!tent_open() || mapimage() < 25) {
 					print("Waiting for tent to open");
