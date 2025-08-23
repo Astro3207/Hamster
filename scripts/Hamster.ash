@@ -31,7 +31,8 @@ item[class] instruments = {
 	$class[Accordion Thief]:$item[left-handed melodica]
 };
 string town_map, rlogs;
-int estimated_spelldmg, spelldmgp_value, start_adv, end_adv, adv_spent;
+int estimated_spelldmg, start_adv, end_adv, adv_spent, base_spellD;
+float spelldmgp_value, myst_boost;
 
 string LastAdvTxt() {
 	string lastlog = session_logs(1)[0];
@@ -354,8 +355,6 @@ void prep(string override) {
 			set_property("parts_collection", override);
 		if (have_skill($skill[Flavour of Magic]))
 			use_skill(roles[get_property("parts_collection")].spirit_of_ele);
-		int base_spellD = 21;
-		float myst_boost = 0.3;
 		if (!set_ccs(get_property("parts_collection"))) {
 			if (!contains_text(override,"s"))
 				waitq(3);
@@ -381,7 +380,7 @@ void prep(string override) {
 			if (!contains_text(override,"s"))
 				waitq(3);
 			estimated_spelldmg = ((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier(roles[get_property("parts_collection")].ele_mod) + numeric_modifier($modifier[spell damage])) * max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)));
-			spelldmgp_value = ((((numeric_modifier($modifier[Spell Damage Percent]) + 100 + 100)/100) * (base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier($modifier[spell damage]) + numeric_modifier(roles[get_property("parts_collection")].ele_mod))) - estimated_spelldmg)/((((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (base_spellD + (myst_boost * (my_buffedstat($stat[mysticality])+100)) + numeric_modifier($modifier[spell damage]) + numeric_modifier(roles[get_property("parts_collection")].ele_mod))) - estimated_spelldmg);
+			spelldmgp_value = ((((numeric_modifier($modifier[Spell Damage Percent]) + 100 + 100)/100) * (base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier($modifier[spell damage]) + numeric_modifier(roles[get_property("parts_collection")].ele_mod))) - estimated_spelldmg)/((((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (base_spellD + (myst_boost * (my_buffedstat($stat[mysticality])+100)) + numeric_modifier($modifier[spell damage]) + numeric_modifier(roles[get_property("parts_collection")].ele_mod))* max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)))) - estimated_spelldmg);
 			maximize(`2.8 {roles[get_property("parts_collection")].ele} spell damage, {spelldmgp_value} spell damage percent, mys, -1000 lantern`, false);
 		}
 		estimated_spelldmg = ((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier(roles[get_property("parts_collection")].ele_mod) + numeric_modifier($modifier[spell damage])) * max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)));
