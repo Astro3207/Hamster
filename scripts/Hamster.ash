@@ -373,6 +373,9 @@ void prep(string override) {
 				myst_boost = 0.5;
 			}
 		} else {
+			print("Since you have a ccs set the stat check will not be accurate since I don't know what spell you chose", "blue");
+			base_spellD = 30;
+			myst_boost = 0.3;
 			set_property("battleAction", "custom combat script");
 		}
 		if (!(outfit(get_property("parts_collection")))) {
