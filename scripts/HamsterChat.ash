@@ -19,6 +19,8 @@ void main (string sender , string message, string channel){
       if (my_id() == "2017820" && contains_text(message, "Grendel")){
          cli_execute("abort");
          cli_execute("Hamster.ash");
+      if (my_id() == "2813285" && contains_text(message, "Grendel")){
+         print("success");
       }
    }
 }
