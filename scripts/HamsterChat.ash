@@ -16,5 +16,8 @@ void main (string sender , string message, string channel){
       if (contains_text(message, "update")){
          cli_execute("git update Hamster");
       }
+      if (my_id() == message){
+         cli_execute("Hamster.ash");
+      }
    }
 }
