@@ -13,6 +13,7 @@ role[string] roles = {
 	"guts":		new role("stench",	$modifier[stench spell damage],	$skill[spirit of garlic],		$skill[Mudbath]),
 };
 
+set_property("parts_storage", get_property("parts_collection"));
 set_property("parts_collection", user_prompt("The express purpose of this script is to help you set up your outfit and mood before running Hamster.ash. Note that mood will not be taken into account unless the effects are active while running the script. Also not that outfits that have recently changed will not be updated in mafia unless you log out and in once after changing. To begin, what part are you looking to get? \n boots --> hot \n eyes --> cold \n guts --> stench \n skulls --> spooky \n crotches --> sleaze \n skins --> physical", roles));
 set_property("hamster_spell", user_prompt("What spell will you be using? Unfortunately this script only supports stuffed mortar shell, 30mp hobopolis spells, and 120mp hobopolis spells hamster.ash defaults to stuffed mortar shells unless you are collecting skins or don't have stuffed mortar shell or flavour of magic. If you'd like more spells DM me on discord @weaksauce3207, it's actually very little effort to add myst spells but no point in doing so if there's no interest", $strings[stuffed mortar shell, 30mp, 120mp]));
 if (get_property("parts_collection") == "skins" && get_property("hamster_spell") == "stuffed mortar shell"){
@@ -53,3 +54,4 @@ if (estimated_spelldmg > ($monster[normal hobo].monster_hp() + 100)){
     print("Or you could increase your spell damage percent by " + spell_percent_desired);
     print("Or you could also run -mL but the calculations are a little too complex to be desired right now");
 }
+set_property("parts_collection", get_property("parts_storage"));
