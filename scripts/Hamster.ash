@@ -603,6 +603,7 @@ void phase_three() {
 		if (!tent_open()) {
 			if (get_property("parts_collection") != "scarehobo"){
 				set_property("people_staged", "0");
+				set_property("people_unstaged", "0");
 				set_property("moshed", "false");
 			} else {
 				while (to_int(get_property("people_unstaged")) < 6 && get_property("moshed") == "true") {
@@ -676,6 +677,9 @@ void phase_three() {
 			} else {
 				while (!tent_open() && mapimage() < 25) {
 					print("Waiting for tent to open");
+					set_property("people_staged", "0");
+					set_property("people_unstaged", "0");
+					set_property("moshed", "false");
 					cli_execute("/switch hobopolis");
 					waitq(10);
 				}
