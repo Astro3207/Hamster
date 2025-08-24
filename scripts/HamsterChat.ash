@@ -16,12 +16,5 @@ void main (string sender , string message, string channel){
       if (contains_text(message, "update")){
          cli_execute("git update Hamster");
       }
-      if (my_id() == "2017820" && contains_text(message, "Grendel")){
-         cli_execute("abort");
-         cli_execute("Hamster.ash");
-      }
-      if (my_id() == "2813285" && contains_text(message, "Grendel")){
-         print("success");
-      }
    }
 }
