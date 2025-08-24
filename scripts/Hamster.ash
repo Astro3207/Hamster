@@ -5,12 +5,12 @@ record role {
 	skill atk_spell;
 };
 role[string] roles = {
-	"skins":	new role("",		$modifier[lantern],				$skill[spirit of nothing],		$skill[Wassail]),
-	"boots":	new role("hot",		$modifier[hot spell damage],	$skill[spirit of cayenne],		$skill[Conjure Relaxing Campfire]),
-	"skulls":	new role("spooky",	$modifier[spooky spell damage],	$skill[spirit of wormwood],		$skill[Creepy Lullaby]),
-	"eyes":		new role("cold",	$modifier[cold spell damage],	$skill[spirit of peppermint],	$skill[Maximum Chill]),
-	"crotches":	new role("sleaze",	$modifier[sleaze spell damage],	$skill[spirit of bacon grease],	$skill[Inappropriate Backrub]),
-	"guts":		new role("stench",	$modifier[stench spell damage],	$skill[spirit of garlic],		$skill[Mudbath]),
+	"skins":	new role("",		$modifier[lantern],				$skill[spirit of nothing],		$skill[toynado]),
+	"boots":	new role("hot",		$modifier[hot spell damage],	$skill[spirit of cayenne],		$skill[awesome balls of fire]),
+	"skulls":	new role("spooky",	$modifier[spooky spell damage],	$skill[spirit of wormwood],		$skill[raise backup dancer]),
+	"eyes":		new role("cold",	$modifier[cold spell damage],	$skill[spirit of peppermint],	$skill[snowclone]),
+	"crotches":	new role("sleaze",	$modifier[sleaze spell damage],	$skill[spirit of bacon grease],	$skill[grease lightning]),
+	"guts":		new role("stench",	$modifier[stench spell damage],	$skill[spirit of garlic],		$skill[eggsplosion]),
 	"scarehobo":new role("",		$modifier[none],				$skill[spirit of nothing],		$skill[stuffed mortar shell]),
 	"cagebot":	new role("",		$modifier[none],				$skill[spirit of nothing],		$skill[stuffed mortar shell])
 };
@@ -182,11 +182,17 @@ if ((get_property("initialized") == "1") || get_property("initialized") == ""){
 				abort();
 			set_property("initialized", 4);
 	}
-	cli_execute("unequip offhand");
-	if (get_property("is_mosher") != "true" && get_property("parts_collection") != "cagebot")
-		foreach cl, it in instruments
-			if (my_class() == cl && item_amount(it) < 1)
-				abort("Missing your class instrument? To reset your role (e.g. to mosher or cagebot), type \"set initialized = 3\"");
+	if (get_property("is_mosher") != "true" && get_property("parts_collection") != "cagebot"){
+		foreach cl, it in instruments{
+			try {
+				if (my_class() == cl)
+					take_closet( 1 , it );
+			} finally {
+				if (my_class() == cl && item_amount(it) < 1 && equipped_item($slot[hat]) != it)
+					abort("Missing your class instrument? To reset your role (e.g. to mosher or cagebot), type \"set initialized = 3\"");
+			}
+		}
+	}
 	if (!have_skill($skill[CLEESH]))
 		abort("Having CLEESH is essential, and my data says you don't");
 }
@@ -205,6 +211,7 @@ void sewer() {
 	if (get_property("lucky_sewers") == "false") {
 		set_property("HalfnHalf", user_confirm("Do you want to clover through the final 10% of the sewers?"));
 		set_ccs ("cleesh free runaway");
+		familiar famrem = my_familiar();
 		foreach f in $familiars[peace turkey, disgeist, left-hand man, disembodied hand]
 			if (f.have_familiar()) {
 				f.use_familiar();
@@ -290,6 +297,7 @@ void sewer() {
 			if (get_property("_lastCombatLost") == "true") //KoL Mafia detected that the last combat was lost so that the script is aborted and a whole bunch of adventures aren't wasted
 				abort ("It appears you lost the last combat, look into that");
 		} until (get_property("lastEncounter") == "At Last!");
+		use_familiar(famrem);
 	}
 
 	if (get_property("lucky_sewers") == "true") {
@@ -546,11 +554,12 @@ void phase_two() {
 
 // everyone alternates between working and reopening the tent
 void phase_three() {
-		foreach f in $familiars[peace turkey, disgeist, left-hand man, disembodied hand]
-		if (f.have_familiar()) {
-			f.use_familiar();
-			break;
-		}
+	familiar famrem = my_familiar();
+	foreach f in $familiars[peace turkey, disgeist, left-hand man, disembodied hand]
+	if (f.have_familiar()) {
+		f.use_familiar();
+		break;
+	}
 	maximize("-combat", false);
 	repeat {
 		cli_execute("/switch hobopolis");
@@ -601,21 +610,19 @@ void phase_three() {
 			}
 		}
 		if (!tent_open()) {
-			if (get_property("parts_collection") != "scarehobo"){
-				set_property("people_staged", "0");
-				set_property("people_unstaged", "0");
-				set_property("moshed", "false");
-			} else {
-				while (to_int(get_property("people_unstaged")) < 6 && get_property("moshed") == "true") {
-					print("waiting for everyone to get off stage");
+			start_adv = my_adventures();
+			use_familiar(famrem);
+			if (get_property("parts_collection") == "scarehobo") {
+				if (to_int(get_property("people_unstaged")) < 6 && get_property("moshed") == "true") {
+					while (to_int(get_property("people_unstaged")) < 6 && get_property("moshed") == "true") {
+						print("waiting for everyone to get off stage");
+						waitq(5);
+					}
+					set_property("people_staged", "0");
+					set_property("people_unstaged", "0");
+					set_property("moshed", "false");
 					waitq(5);
 				}
-				set_property("people_staged", "0");
-				set_property("people_unstaged", "0");
-				set_property("moshed", "false");
-			}
-			start_adv = my_adventures();
-			if (get_property("parts_collection") == "scarehobo") {
 				if (get_property("tent_stage") != "stage1") {
 					set_property("tent_stage", "started");
 					int scobo_to_use = 0;
@@ -678,7 +685,8 @@ void phase_three() {
 				while (!tent_open() && mapimage() < 25) {
 					print("Waiting for tent to open");
 					set_property("people_staged", "0");
-					set_property("people_unstaged", "0");
+					if (to_int(get_property("people_unstaged")) >= 6)
+						set_property("people_unstaged", "0");
 					set_property("moshed", "false");
 					cli_execute("/switch hobopolis");
 					waitq(10);
