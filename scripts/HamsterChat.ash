@@ -17,6 +17,7 @@ void main (string sender , string message, string channel){
          cli_execute("git update Hamster");
       }
       if (my_id() == message){
+         abort();
          cli_execute("Hamster.ash");
       }
    }
