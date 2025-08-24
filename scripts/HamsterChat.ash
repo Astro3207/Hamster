@@ -14,7 +14,7 @@ void main (string sender , string message, string channel){
          set_property("people_unstaged" , people_unstaged);
       }
       if (contains_text(message, "update")){
-         cli_execute("git update Astro3207/Hamster");
+         cli_execute("git update Hamster");
       }
    }
 }
