@@ -433,7 +433,7 @@ void phase_one() {
 		while (richard("boots") < 106 || richard("eyes") < 106 || richard("guts") < 106 || richard("skulls") < 106 || richard("crotches") < 106 || richard("skins") < 106 || mapimage() <= 6) {
 			foreach thing in $strings[skins, boots, skulls, eyes, crotches, guts]
 			if (richard(thing) < 106)
-				print(`Looks we are short {106 - richard(thing)} {thing}{thing == "crotch"?"e":""}s`);
+				print(`Looks we are short {106 - richard(thing)} {thing}{thing == "crotch"?"e":""}`);
 			print("Not all parts have been collected, waiting");
 			waitq(5);
 			if (richard("boots") >= 106 && richard("eyes") >= 106 && richard("guts") >= 106 && richard("skulls") >= 106 && richard("crotches") >= 106 && richard("skins") >= 106 && mapimage() <= 6)
@@ -674,7 +674,7 @@ void phase_three() {
 				adv_spent = start_adv - end_adv;
 				print(adv_spent + " adventures spent opening the next tent");
 			} else {
-				while (!tent_open() || mapimage() < 25) {
+				while (!tent_open() && mapimage() < 25) {
 					print("Waiting for tent to open");
 					cli_execute("/switch hobopolis");
 					waitq(10);
