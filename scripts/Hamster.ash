@@ -421,30 +421,31 @@ void phase_one() {
 	set_property("choiceAdventure225", "0"); //stopping if A Tent is encountered
 	int start_adv = my_adventures();
 
-	if (mapimage() <= 6) { //phase 1 collect 106 hobo parts
+	if (mapimage() <= 8) { //phase 1 collect 134 hobo parts
+		int scobo_start = 134;
 		if (roles contains get_property("parts_collection") && !($strings[scarehobo, cagebot] contains get_property("parts_collection"))) {
 			prep();
-			int parts_left = 106 - richard(get_property("parts_collection"));
-			while (richard(get_property("parts_collection")) < 106) {
+			int parts_left = scobo_start - richard(get_property("parts_collection"));
+			while (richard(get_property("parts_collection")) < scobo_start) {
 				adventure(1, $location[Hobopolis Town Square]);
 				if (get_property("_lastCombatLost") == "true") //KoL Mafia detected that the last combat was lost so that the script is aborted and a whole bunch of adventures aren't wasted
 					abort ("It appears you lost the last combat, look into that");
 				if (!LastAdvTxt().contains_text(rich_takes[get_property("parts_collection")]))
 					abort(rich_takes[get_property("parts_collection")].replace_string("takes", "failed to take"));
-				parts_left = 106 - richard(get_property("parts_collection"));
+				parts_left = scobo_start - richard(get_property("parts_collection"));
 				print(get_property("parts_collection") + " left to collect: " + parts_left);
 			}
 		}
 
 		set_property("battleAction", "custom combat script");
 		set_property("currentMood", "apathetic");
-		while (richard("boots") < 106 || richard("eyes") < 106 || richard("guts") < 106 || richard("skulls") < 106 || richard("crotches") < 106 || richard("skins") < 106 || mapimage() <= 6) {
+		while (richard("boots") < scobo_start || richard("eyes") < scobo_start || richard("guts") < scobo_start || richard("skulls") < scobo_start || richard("crotches") < scobo_start || richard("skins") < scobo_start || mapimage() <= 8) {
 			foreach thing in $strings[skins, boots, skulls, eyes, crotches, guts]
-			if (richard(thing) < 106)
-				print(`Looks we are short {106 - richard(thing)} {thing}{thing == "crotch"?"e":""}`);
+			if (richard(thing) < scobo_start)
+				print(`Looks we are short {scobo_start - richard(thing)} {thing}{thing == "crotch"?"e":""}`);
 			print("Not all parts have been collected, waiting");
 			waitq(5);
-			if (richard("boots") >= 106 && richard("eyes") >= 106 && richard("guts") >= 106 && richard("skulls") >= 106 && richard("crotches") >= 106 && richard("skins") >= 106 && mapimage() <= 6)
+			if (richard("boots") >= scobo_start && richard("eyes") >= scobo_start && richard("guts") >= scobo_start && richard("skulls") >= scobo_start && richard("crotches") >= scobo_start && richard("skins") >= scobo_start && mapimage() <= 8)
 				break;
 		}
 		print(`{start_adv - my_adventures()} adventures spend collecting parts`);
