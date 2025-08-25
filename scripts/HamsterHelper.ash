@@ -39,19 +39,21 @@ if (!(outfit(get_property("parts_collection")))) {
     spelldmgp_value = ((((numeric_modifier($modifier[Spell Damage Percent]) + 100 + 100)/100) * (base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier($modifier[spell damage]) + numeric_modifier(roles[get_property("parts_collection")].ele_mod))) - estimated_spelldmg)/((((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (base_spellD + (myst_boost * (my_buffedstat($stat[mysticality])+100)) + numeric_modifier($modifier[spell damage]) + numeric_modifier(roles[get_property("parts_collection")].ele_mod))* max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)))) - estimated_spelldmg);
     maximize(`2.8 {roles[get_property("parts_collection")].ele} spell damage, {spelldmgp_value} spell damage percent, mys, -999999 lantern`, false);
 }
-estimated_spelldmg = ((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier(roles[get_property("parts_collection")].ele_mod) + numeric_modifier($modifier[spell damage])) * max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)));
-set_property("currentMood", get_property("parts_collector"));
-print(`Setting mood named {get_property("parts_collection")} (capitalization matters), again you will need to execute your mood for the effects to be taken into consideration`, "blue");
-if (my_buffedstat($stat[moxie]) < ($monster[normal hobo].monster_attack() + 10))
-    print("You have " + my_buffedstat($stat[moxie]) + " moxie, but you need at least " + ($monster[normal hobo].monster_attack() + 10) + " moxie to safely adventure at town square");
-if (estimated_spelldmg > ($monster[normal hobo].monster_hp() + 100)){
-    print("You are expected to do " + estimated_spelldmg + " damage when casting the spell, while you need to deal " + ($monster[normal hobo].monster_hp() + 100) + " damage to guarentee a hobo part from normal hobos. Congrats, you're all set!");
-} else {
-    print("You are expected to do " + estimated_spelldmg + " damage when casting the spell, while you need to deal " + ($monster[normal hobo].monster_hp() + 100) + " damage to guarentee a hobo part from normal hobos. Consider making a mood, buy better equipment, or choosing another spell");
-    int myst_desired = ((($monster[normal hobo].monster_hp() + 100)/(max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)))*(((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100)))-base_spellD)/myst_boost) - my_buffedstat($stat[mysticality]);
-    print("You could increase your mysticality by " + myst_desired);
-    int spell_percent_desired = ((($monster[normal hobo].monster_hp() + 100)/(max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)))*(base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier($modifier[spell damage]) + numeric_modifier(roles[get_property("parts_collection")].ele_mod)))) - ((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100))*100;
-    print("Or you could increase your spell damage percent by " + spell_percent_desired);
-    print("Or you could also run -mL but the calculations are a little too complex to be desired right now");
-}
-set_property("parts_collection", get_property("parts_storage"));
+try{
+    estimated_spelldmg = ((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier(roles[get_property("parts_collection")].ele_mod) + numeric_modifier($modifier[spell damage])) * max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)));
+    set_property("currentMood", get_property("parts_collector"));
+    print(`Setting mood named {get_property("parts_collection")} (capitalization matters), again you will need to execute your mood for the effects to be taken into consideration`, "blue");
+    if (my_buffedstat($stat[moxie]) < ($monster[normal hobo].monster_attack() + 10))
+        print("You have " + my_buffedstat($stat[moxie]) + " moxie, but you need at least " + ($monster[normal hobo].monster_attack() + 10) + " moxie to safely adventure at town square");
+    if (estimated_spelldmg > ($monster[normal hobo].monster_hp() + 100)){
+        print("You are expected to do " + estimated_spelldmg + " damage when casting the spell, while you need to deal " + ($monster[normal hobo].monster_hp() + 100) + " damage to guarentee a hobo part from normal hobos. Congrats, you're all set!");
+    } else {
+        print("You are expected to do " + estimated_spelldmg + " damage when casting the spell, while you need to deal " + ($monster[normal hobo].monster_hp() + 100) + " damage to guarentee a hobo part from normal hobos. Consider making a mood, buy better equipment, or choosing another spell");
+        int myst_desired = ((($monster[normal hobo].monster_hp() + 100)/(max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)))*(((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100)))-base_spellD)/myst_boost) - my_buffedstat($stat[mysticality]);
+        print("You could increase your mysticality by " + myst_desired);
+        int spell_percent_desired = ((($monster[normal hobo].monster_hp() + 100)/(max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)))*(base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier($modifier[spell damage]) + numeric_modifier(roles[get_property("parts_collection")].ele_mod)))) - ((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100))*100;
+        print("Or you could increase your spell damage percent by " + spell_percent_desired);
+        print("Or you could also run -mL but the calculations are a little too complex to be desired right now");
+    }
+} finally
+    set_property("parts_collection", get_property("parts_storage"));
