@@ -537,7 +537,7 @@ void phase_two() {
 					abort ("It appears you lost the last combat, look into that");
 			}
 		if (to_int(get_property("scobo_needed")) < 9)
-			abort("scobos to be made during first tent is too low, look into that"); //debugging lines
+			abort("Looks like the script skipped some lines please rerun the script"); //debugging lines
 		set_property("scobo_needed", "");
 		visit_url("clan_hobopolis.php?preaction=simulacrum&place=3&qty="+scobo_to_use);
 		set_property("tent_stage", "stage1");
@@ -573,7 +573,7 @@ void phase_three() {
 			break;
 		}
 	if (mapimage() < 13)
-		abort("You are in phase 3 too early, check that out"); //debugging only lines
+		abort("You are in phase 3 too early, the script seemed to have skipped some lines, please rerun the script"); //debugging only lines
 	maximize("-combat", false);
 	repeat {
 		cli_execute("/switch hobopolis");
