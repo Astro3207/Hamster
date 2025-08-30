@@ -94,7 +94,8 @@ int richard(string part) {
 }
 
 void setup() {
-	buffer ccs = "if hasskill Spring Away \n"
+	buffer ccs = "if monstername normal hobo || monstername C. H. U. M. || monstername giant zombie goldfish || monstername sewer gator \n"
+		+ "if hasskill Spring Away \n"
 			+ "skill spring away \n"
 		+ "endif \n"
 		+ "if hasskill Blow the Green Candle! \n"
@@ -119,7 +120,9 @@ void setup() {
 			+ "skill snokebomb \n"
 		+ "endif \n"
 		+ "skill cleesh \n"
-		+ "attack with weapon";
+		+ "endif \n"
+		+ "attack with weapon \n"
+		+ "repeat";
 	write_ccs(ccs, "cleesh free runaway");
 
 	if (have_skill($skill[stuffed mortar shell])){
@@ -430,7 +433,7 @@ void phase_one() {
 				adventure(1, $location[Hobopolis Town Square]);
 				if (get_property("_lastCombatLost") == "true") //KoL Mafia detected that the last combat was lost so that the script is aborted and a whole bunch of adventures aren't wasted
 					abort ("It appears you lost the last combat, look into that");
-				if (!LastAdvTxt().contains_text(rich_takes[get_property("parts_collection")]))
+				if (!LastAdvTxt().contains_text(rich_takes[get_property("parts_collection")]) && last_monster() == $monster[normal hobo])
 					abort(rich_takes[get_property("parts_collection")].replace_string("takes", "failed to take"));
 				parts_left = scobo_start - richard(get_property("parts_collection"));
 				print(get_property("parts_collection") + " left to collect: " + parts_left);
@@ -486,7 +489,7 @@ void phase_two() {
 					if (!($strings[scarehobo, cagebot] contains part) && richard(part) == 0) {
 						prep(part);
 						adventure(1, $location[Hobopolis Town Square]);
-						if (!contains_text(LastAdvTxt(), rich_takes[part]))
+						if (!contains_text(LastAdvTxt(), rich_takes[part]) && last_monster() == $monster[normal hobo])
 							abort(`Richard failed to take {part}`);
 						if (get_property("_lastCombatLost") == "true")
 							abort ("It appears you lost the last combat, look into that");
@@ -523,7 +526,7 @@ void phase_two() {
 			while (richard(part) < scobo_to_use) {
 				prep(part);
 				adventure(1, $location[Hobopolis Town Square]);
-				if (!contains_text(LastAdvTxt(), rich_takes[part]))
+				if (!contains_text(LastAdvTxt(), rich_takes[part]) && last_monster() == $monster[normal hobo]) 
 					abort(`Richard failed to take {part}`);
 				if (get_property("_lastCombatLost") == "true")
 					abort ("It appears you lost the last combat, look into that");
@@ -538,7 +541,7 @@ void phase_two() {
 				if (richard(part) == min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins"))) {
 					prep(part);
 					adventure(1, $location[Hobopolis Town Square]);
-					if (!contains_text(LastAdvTxt(), rich_takes[part]))
+					if (!contains_text(LastAdvTxt(), rich_takes[part]) && last_monster() == $monster[normal hobo])
 						abort(`Richard failed to take {part}`);
 					if (get_property("_lastCombatLost") == "true")
 						abort ("It appears you lost the last combat, look into that");
@@ -646,7 +649,7 @@ void phase_three() {
 						while (richard(part) < scobo_to_use) {
 							prep(part);
 							adventure(1, $location[Hobopolis Town Square]);
-							if (!contains_text(LastAdvTxt(), rich_takes[part]))
+							if (!contains_text(LastAdvTxt(), rich_takes[part]) && last_monster() == $monster[normal hobo])
 								abort(`Richard failed to take {part}`);
 							if (get_property("_lastCombatLost") == "true")
 								abort ("It appears you lost the last combat, look into that");
@@ -661,7 +664,7 @@ void phase_three() {
 							if (richard(part) == min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins"))) {
 								prep(part);
 								adventure(1, $location[Hobopolis Town Square]);
-								if (!contains_text(LastAdvTxt(), rich_takes[part]))
+								if (!contains_text(LastAdvTxt(), rich_takes[part])  && last_monster() == $monster[normal hobo])
 									abort(`Richard failed to take {part}`);
 								if (get_property("_lastCombatLost") == "true")
 									abort ("It appears you lost the last combat, look into that");
