@@ -133,6 +133,9 @@ void setup() {
 	set_auto_attack(0);
 
 string sewer_image = visit_url("clan_hobopolis.php");
+if (!contains_text(visit_url("clan_basement.php?fromabove=1"), "opengrate.gif"))
+	abort("Either you are in a choice or hobopolis isn't open yet");
+
 if ((get_property("initialized") == "1") || get_property("initialized") == ""){
     if (contains_text(sewer_image,"otherimages/hobopolis/sewer3.gif")){
         if (user_confirm("The script has detected that you have not been given a role and you have already started sewers. Press yes to continue to assign your role, press no to abort and figure out what happened") == false) {
@@ -455,7 +458,7 @@ void phase_one() {
 // scobomaker opens the first tent
 void phase_two() {
 	if (get_property("parts_collection") != "scarehobo") {
-		while (!tent_open()) {
+		while (!tent_open() && mapimage() <= 12) {
 			print("Tent not opened yet, waiting for designated person to open it");
 			waitq(5);
 		}
@@ -510,6 +513,7 @@ void phase_two() {
 				foreach part in roles
 					if (!($strings[scarehobo, cagebot] contains part)){
 						total += min(n, richard(part));
+						print ("Estmated scobos to make is = " + scobo_to_use); //debugging line
 						if (total >= needed) {
 							scobo_to_use = n;
 							set_property("scobo_needed", `{n}`);
@@ -528,10 +532,13 @@ void phase_two() {
 				if (get_property("_lastCombatLost") == "true")
 					abort ("It appears you lost the last combat, look into that");
 			}
+		if (to_int(get_property("scobo_needed")) < 9)
+			abort("scobos to be made during first tent is too low, look into that"); //debugging lines
 		set_property("scobo_needed", "");
 		visit_url("clan_hobopolis.php?preaction=simulacrum&place=3&qty="+scobo_to_use);
 		set_property("tent_stage", "stage1");
 	}
+
 	if (mapimage() == 12 && get_property("tent_stage") == "stage1") {
 		while (!tent_open()) {
 			foreach part in roles if (!($strings[scarehobo, cagebot] contains part))
@@ -561,11 +568,12 @@ void phase_three() {
 		f.use_familiar();
 		break;
 	}
+	if (mapimage() < 13)
+		abort("You are in phase 3 too early, check that out"); //debugging only lines
 	maximize("-combat", false);
 	repeat {
 		cli_execute("/switch hobopolis");
 		if (tent_open()) {
-			start_adv = my_adventures();
 			foreach cl, it in instruments
 				if (my_class() == cl && get_property("is_mosher") != "true" && !maximize(`-combat, equip {it}`, false))
 					abort("failed to equip a hobo instrument...");
@@ -615,7 +623,7 @@ void phase_three() {
 			start_adv = my_adventures();
 			use_familiar(famrem);
 			if (get_property("parts_collection") == "scarehobo") {
-				if (to_int(get_property("people_unstaged")) < 6 && get_property("moshed") == "true") {
+				if (get_property("moshed") == "true") {
 					while (to_int(get_property("people_unstaged")) < 6 && get_property("moshed") == "true") {
 						print("waiting for everyone to get off stage");
 						waitq(5);
@@ -694,6 +702,7 @@ void phase_three() {
 					waitq(10);
 				}
 			}
+			start_adv = my_adventures();
 		}
 	} until (mapimage() >= 25 && mapimage() != 125);
 }
