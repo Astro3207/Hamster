@@ -188,7 +188,7 @@ if ((get_property("initialized") == "1") || get_property("initialized") == ""){
 				if (my_class() == cl && closet_amount( it ) > 0)
 					take_closet( 1 , it );
 			} finally {
-				if (my_class() == cl && item_amount(it) < 1 && equipped_item($slot[hat]) != it)
+				if (my_class() == cl && item_amount(it) < 1 && equipped_item($slot[offhand]) != it)
 					abort("Missing your class instrument? To reset your role (e.g. to mosher or cagebot), type \"set initialized = 3\"");
 			}
 		}
