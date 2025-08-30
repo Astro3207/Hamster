@@ -94,8 +94,7 @@ int richard(string part) {
 }
 
 void setup() {
-	buffer ccs = "if monstername normal hobo || monstername C. H. U. M. || monstername giant zombie goldfish || monstername sewer gator \n"
-		+ "if hasskill Spring Away \n"
+	buffer ccs = "if hasskill Spring Away \n"
 			+ "skill spring away \n"
 		+ "endif \n"
 		+ "if hasskill Blow the Green Candle! \n"
@@ -120,9 +119,7 @@ void setup() {
 			+ "skill snokebomb \n"
 		+ "endif \n"
 		+ "skill cleesh \n"
-		+ "endif \n"
-		+ "attack with weapon \n"
-		+ "repeat";
+		+ "attack with weapon";
 	write_ccs(ccs, "cleesh free runaway");
 
 	if (have_skill($skill[stuffed mortar shell])){
