@@ -601,7 +601,7 @@ void phase_three() {
 						waitq(10);
 					}
 					run_choice(1);
-					cli_execute("/hobopolis off stage");
+					chat_clan("off stage" , "hobopolis" );
 					waitq(3);
 				}
 				if (get_property("is_mosher") == "true") {
