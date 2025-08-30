@@ -132,6 +132,10 @@ void setup() {
 	set_property("battleAction", "custom combat script");
 	set_auto_attack(0);
 
+foreach eli in $items[double-ice box, enchanted fire extinguisher, Gazpacho's Glacial Grimoire, witch's bra, Codex of Capsaicin Conjuration, Ol' Scratch's ash can, Ol' Scratch's manacles, Snapdragon pistil, Chester's Aquarius medallion, Engorged Sausages and You, Sinful Desires, slime-covered staff, Necrotelicomnicon, The Necbromancer's Stein, Cookbook of the Damned, Wand of Oscus]
+    if (item_amount( eli ) > 0)
+        put_closet( item_amount( eli ), eli);
+
 string sewer_image = visit_url("clan_hobopolis.php");
 if (!contains_text(visit_url("clan_basement.php?fromabove=1"), "opengrate.gif"))
 	abort("Either you are in a choice or hobopolis isn't open yet");
@@ -564,10 +568,10 @@ void phase_two() {
 void phase_three() {
 	familiar famrem = my_familiar();
 	foreach f in $familiars[peace turkey, disgeist, left-hand man, disembodied hand]
-	if (f.have_familiar()) {
-		f.use_familiar();
-		break;
-	}
+		if (f.have_familiar()) {
+			f.use_familiar();
+			break;
+		}
 	if (mapimage() < 13)
 		abort("You are in phase 3 too early, check that out"); //debugging only lines
 	maximize("-combat", false);
@@ -718,6 +722,9 @@ void main() {
 		set_property("chatbotScript", get_property("chatbotScriptStorage"));
 		set_property("battleAction", "custom combat script");
 		set_property("currentMood", "apathetic");
+		foreach eli in $items[double-ice box, enchanted fire extinguisher, Gazpacho's Glacial Grimoire, witch's bra, Codex of Capsaicin Conjuration, Ol' Scratch's ash can, Ol' Scratch's manacles, Snapdragon pistil, Chester's Aquarius medallion, Engorged Sausages and You, Sinful Desires, slime-covered staff, Necrotelicomnicon, The Necbromancer's Stein, Cookbook of the Damned, Wand of Oscus]
+			if ( closet_amount( eli ) > 0)
+				take_closet(  closet_amount( eli ), eli);
 	} else {
 		abort("Uh oh, there was a (hopefully) one time bug, please rerun hamster");
 	}
