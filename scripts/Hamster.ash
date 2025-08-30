@@ -467,7 +467,7 @@ void phase_two() {
 	int start_adv = my_adventures();
 	if (mapimage() < 9) {
 		print("Letting other people's script catch up");
-		waitq(15);
+		wait(15);
 		rlogs = visit_url("clan_raidlogs.php");
 		matcher manual_hobos = create_matcher("\\bdefeated\\s+Normal hobo x\\s+(\\d+)", rlogs);
 		while (manual_hobos.find()) {
@@ -590,6 +590,7 @@ void phase_three() {
 					}
 					run_choice(1);
 					cli_execute("/hobopolis off stage");
+					waitq(3);
 				}
 				if (get_property("is_mosher") == "true") {
 					while (to_int(get_property("people_staged")) < 6) {
