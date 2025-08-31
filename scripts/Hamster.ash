@@ -536,8 +536,10 @@ void phase_two() {
 				if (get_property("_lastCombatLost") == "true")
 					abort ("It appears you lost the last combat, look into that");
 			}
-		if (to_int(get_property("scobo_needed")) < 9)
+		if (to_int(get_property("scobo_needed")) < 9){
+			set_property("scobo_needed", "");
 			abort("Looks like the script skipped some lines please rerun the script"); //debugging lines
+		}
 		set_property("scobo_needed", "");
 		visit_url("clan_hobopolis.php?preaction=simulacrum&place=3&qty="+scobo_to_use);
 		set_property("tent_stage", "stage1");
@@ -582,6 +584,7 @@ void phase_three() {
 				if (my_class() == cl && get_property("is_mosher") != "true" && !maximize(`-combat, equip {it}`, false))
 					abort("failed to equip a hobo instrument...");
 			set_ccs ("cleesh free runaway");
+			set_property("moshed", "false");
 			int TS_noncom = 0;
 			string town_square = visit_url("adventure.php?snarfblat=167");
 			matcher matcher_TS_noncom = create_matcher("whichchoice value=(\\d+)", town_square); 
