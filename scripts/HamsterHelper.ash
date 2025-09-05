@@ -47,6 +47,10 @@ try{
         print("You have " + my_buffedstat($stat[moxie]) + " moxie, but you need at least " + ($monster[normal hobo].monster_attack() + 10) + " moxie to safely adventure at town square");
     if (estimated_spelldmg > ($monster[normal hobo].monster_hp() + 100)){
         print("You are expected to do " + estimated_spelldmg + " damage when casting the spell, while you need to deal " + ($monster[normal hobo].monster_hp() + 100) + " damage to guarentee a hobo part from normal hobos. Congrats, you're all set!");
+        int min_mys = ((($monster[normal hobo].monster_hp() + 100)/(max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)))*(((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100)))-base_spellD)/myst_boost);
+        if ( min_mys > my_basestat( $stat[mysticality] )){
+            print("Please note that your base mysticality is " + my_basestat( $stat[mysticality] ) + " and with your current gear, you need to maintain at least " + min_mys + " to guarantee a hobo part");
+        }
     } else {
         print("You are expected to do " + estimated_spelldmg + " damage when casting the spell, while you need to deal " + ($monster[normal hobo].monster_hp() + 100) + " damage to guarentee a hobo part from normal hobos. Consider making a mood, buy better equipment, or choosing another spell");
         int myst_desired = ((($monster[normal hobo].monster_hp() + 100)/(max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)))*(((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100)))-base_spellD)/myst_boost) - my_buffedstat($stat[mysticality]);
