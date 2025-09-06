@@ -137,8 +137,6 @@ foreach eli in $items[double-ice box, enchanted fire extinguisher, Gazpacho's Gl
         put_closet( item_amount( eli ), eli);
 
 string sewer_image = visit_url("clan_hobopolis.php");
-if (!contains_text(visit_url("clan_basement.php?fromabove=1"), "opengrate.gif"))
-	abort("Either you are in a choice or hobopolis isn't open yet");
 
 if ((get_property("initialized") == "1") || get_property("initialized") == ""){
     if (contains_text(sewer_image,"otherimages/hobopolis/sewer3.gif")){
