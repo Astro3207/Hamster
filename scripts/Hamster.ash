@@ -132,25 +132,25 @@ void setup() {
 	set_property("battleAction", "custom combat script");
 	set_auto_attack(0);
 
-foreach eli in $items[double-ice box, enchanted fire extinguisher, Gazpacho's Glacial Grimoire, witch's bra, Codex of Capsaicin Conjuration, Ol' Scratch's ash can, Ol' Scratch's manacles, Snapdragon pistil, Chester's Aquarius medallion, Engorged Sausages and You, Sinful Desires, slime-covered staff, Necrotelicomnicon, The Necbromancer's Stein, Cookbook of the Damned, Wand of Oscus]
-    if (item_amount( eli ) > 0)
-        put_closet( item_amount( eli ), eli);
+	foreach eli in $items[double-ice box, enchanted fire extinguisher, Gazpacho's Glacial Grimoire, witch's bra, Codex of Capsaicin Conjuration, Ol' Scratch's ash can, Ol' Scratch's manacles, Snapdragon pistil, Chester's Aquarius medallion, Engorged Sausages and You, Sinful Desires, slime-covered staff, Necrotelicomnicon, The Necbromancer's Stein, Cookbook of the Damned, Wand of Oscus]
+		if (item_amount( eli ) > 0)
+			put_closet( item_amount( eli ), eli);
 
-string sewer_image = visit_url("clan_hobopolis.php");
-if (!contains_text(visit_url("clan_basement.php?fromabove=1"), "opengrate.gif"))
-	abort("Either you are in a choice or hobopolis isn't open yet");
-	
-if ((get_property("initialized") == "1") || get_property("initialized") == ""){
-    if (contains_text(sewer_image,"otherimages/hobopolis/sewer3.gif")){
-        if (user_confirm("The script has detected that you have not been given a role and you have already started sewers. Press yes to continue to assign your role, press no to abort and figure out what happened") == false) {
-            abort();
-        }
-    }
-} else if(contains_text(sewer_image,"otherimages/hobopolis/sewer1.gif") && !contains_text(sewer_image, "otherimages/hobopolis/sewer3.gif")){
-    if (user_confirm("The script has detected that your last hamster run may have been incomplete, press yes if you have not adventured in sewers yet and need to set up, press no if you have already set up")){
-        set_property("initialized", 1);
-    }
-}
+	string sewer_image = visit_url("clan_hobopolis.php");
+	if (!contains_text(visit_url("clan_basement.php?fromabove=1"), "opengrate.gif"))
+		abort("Either you are in a choice or hobopolis isn't open yet");
+		
+	if ((get_property("initialized") == "1") || get_property("initialized") == ""){
+		if (contains_text(sewer_image,"otherimages/hobopolis/sewer3.gif")){
+			if (user_confirm("The script has detected that you have not been given a role and you have already started sewers. Press yes to continue to assign your role, press no to abort and figure out what happened") == false) {
+				abort();
+			}
+		}
+	} else if(contains_text(sewer_image,"otherimages/hobopolis/sewer1.gif") && !contains_text(sewer_image, "otherimages/hobopolis/sewer3.gif")){
+		if (user_confirm("The script has detected that your last hamster run may have been incomplete, press yes if you have not adventured in sewers yet and need to set up, press no if you have already set up")){
+			set_property("initialized", 1);
+		}
+	}
 
 	switch (to_int(get_property("initialized"))) {
 		case 0:
@@ -178,8 +178,8 @@ if ((get_property("initialized") == "1") || get_property("initialized") == ""){
 			set_property("initialized", 4); //to skip future initializations
 			break;
 		case 2:
-            if (contains_text(sewer_image, "otherimages/hobopolis/sewer3.gif") && !contains_text(sewer_image, "otherimages/hobopolis/deeper.gif"))
-                break;
+			if (contains_text(sewer_image, "otherimages/hobopolis/sewer3.gif") && !contains_text(sewer_image, "otherimages/hobopolis/deeper.gif"))
+				break;
 			set_property("sewer_progress", 100); //saying that there's 100 chieftans until sewers is cleared
 			break;
 		case 3:
@@ -403,6 +403,7 @@ void prep(string override) {
 		}
 		estimated_spelldmg = ((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier(roles[get_property("parts_collection")].ele_mod) + numeric_modifier($modifier[spell damage])) * max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)));
 		set_property("currentMood", get_property("parts_collection"));
+		mood_execute(1);
 		if ((estimated_spelldmg < ($monster[normal hobo].monster_hp() + 100) || my_buffedstat($stat[moxie]) < ($monster[normal hobo].monster_attack() + 10)) && get_property("IveGotThis") != "true") {
 			if (estimated_spelldmg < ($monster[normal hobo].monster_hp() + 100))
 				print("You are expected to do " + estimated_spelldmg + " damage when casting the hobopolis spell, while you need to deal " + ($monster[normal hobo].monster_hp() + 100) + " damage to guarentee a hobo part from normal hobos.");
