@@ -137,7 +137,9 @@ foreach eli in $items[double-ice box, enchanted fire extinguisher, Gazpacho's Gl
         put_closet( item_amount( eli ), eli);
 
 string sewer_image = visit_url("clan_hobopolis.php");
-
+if (!contains_text(visit_url("clan_basement.php?fromabove=1"), "opengrate.gif"))
+	abort("Either you are in a choice or hobopolis isn't open yet");
+	
 if ((get_property("initialized") == "1") || get_property("initialized") == ""){
     if (contains_text(sewer_image,"otherimages/hobopolis/sewer3.gif")){
         if (user_confirm("The script has detected that you have not been given a role and you have already started sewers. Press yes to continue to assign your role, press no to abort and figure out what happened") == false) {
@@ -427,7 +429,7 @@ void phase_one() {
 	int start_adv = my_adventures();
 
 	if (mapimage() <= 8) { //phase 1 collect 134 hobo parts
-		int scobo_start = 134;
+		int scobo_start = 135;
 		if (roles contains get_property("parts_collection") && !($strings[scarehobo, cagebot] contains get_property("parts_collection"))) {
 			prep();
 			int parts_left = scobo_start - richard(get_property("parts_collection"));
@@ -479,6 +481,7 @@ void phase_two() {
 			manual_hobos_killed += (manual_hobos.group(1)).to_int();
 		}
 		scobo_used = ceil(1375-manual_hobos_killed)/10;
+		print("Making scobos until image 12, may take a few seconds", "blue");
 		visit_url("clan_hobopolis.php?preaction=simulacrum&place=3&qty="+ scobo_used);
 	}
 	while (mapimage() < 12) {
@@ -508,9 +511,10 @@ void phase_two() {
 	print(scobo_used + " scarehobos used, average is " + floor(1375-manual_hobos_killed)/8, "blue");
 	if (mapimage() == 12 && get_property("tent_stage") != "stage1") {
 		set_property("tent_stage", "started");
+		waitq(3);
 		int scobo_to_use = 0;
 		if (get_property("scobo_needed") == "")
-			foreach n, needed in int[int]{11:60, 10:44, 9:28, 8:12, 7:0} {
+			foreach n, needed in int[int]{13:78, 12:72, 10:49, 9:19, 8:4, 7:0} {
 				int total = 0;
 				foreach part in roles
 					if (!($strings[scarehobo, cagebot] contains part)){
@@ -540,7 +544,9 @@ void phase_two() {
 		}
 		set_property("scobo_needed", "");
 		visit_url("clan_hobopolis.php?preaction=simulacrum&place=3&qty="+scobo_to_use);
+		waitq(3);
 		set_property("tent_stage", "stage1");
+		waitq(3);
 	}
 
 	if (mapimage() == 12 && get_property("tent_stage") == "stage1") {
@@ -597,19 +603,23 @@ void phase_three() {
 			if (TS_noncom == 225) {
 				if (get_property("is_mosher") != "true") {
 					run_choice(1);
-					while (get_property("moshed") != "true") {
-						print("At tent, waiting for others to stage and mosher", "blue");
-						waitq(10);
-					}
+					repeat {
+						while (get_property("moshed") != "true") {
+							print("At tent, waiting for others to stage and mosher", "blue");
+							waitq(10);
+						}
+					} until (get_property("moshed") == "true");
 					run_choice(1);
 					chat_clan("off stage" , "hobopolis" );
 					waitq(3);
 				}
 				if (get_property("is_mosher") == "true") {
-					while (to_int(get_property("people_staged")) < 6) {
-						print("At tent, waiting until everyone is staged before moshing", "blue");
-						waitq(5);
-					}
+					repeat {
+						while (to_int(get_property("people_staged")) < 6) {
+							print("At tent, waiting until everyone is staged before moshing", "blue");
+							waitq(5);
+						}
+					} until (to_int(get_property("people_staged")) >= 6);
 					run_choice(2);
 					run_choice(2);
 					waitq(5);
@@ -640,9 +650,10 @@ void phase_three() {
 				}
 				if (get_property("tent_stage") != "stage1") {
 					set_property("tent_stage", "started");
+					wait(3);
 					int scobo_to_use = 0;
 					if (get_property("scobo_needed") == "")
-						foreach n, needed in int[int]{10:60, 9:44, 8:28, 7:12, 6:0} { // keys 1 less than last time
+						foreach n, needed in int[int]{11:65, 10:50, 9:35, 8:20, 7:5, 6:0} { // keys 1 less than last time
 							int total = 0;
 							foreach part in roles
 								if (!($strings[scarehobo, cagebot] contains part)){
@@ -667,7 +678,10 @@ void phase_three() {
 						}
 					set_property("scobo_needed","");
 					visit_url("clan_hobopolis.php?preaction=simulacrum&place=3&qty="+scobo_to_use);
+					wait(3);
+					print(scobo_to_use + " scobos just used", "blue");
 					set_property("tent_stage", "stage1");
+					wait(3);
 				}
 				if (get_property("tent_stage") == "stage1") {
 					while (!tent_open()) {
@@ -681,12 +695,14 @@ void phase_three() {
 									abort ("It appears you lost the last combat, look into that");
 								if (tent_open())
 									break;
+								print(num_mosh() + " moshes executed and " + min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins")) + " scobos available to make", "blue");
+								if (num_mosh() >= 7 && min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins")) >= 1) {
+									visit_url("clan_hobopolis.php?preaction=simulacrum&place=3&qty="+ min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins")));
+									waitq(3);
+								}
 							}
 						set_property("battleAction", "custom combat script");
 						set_property("currentMood", "boots");
-						if (num_mosh() >= 8 && min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins")) >= 1) {
-							visit_url("clan_hobopolis.php?preaction=simulacrum&place=3&qty="+ min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins")));
-						}
 						if (get_property("_lastCombatLost") == "true"){ //KoL Mafia detected that the last combat was lost so that the script is aborted and a whole bunch of adventures aren't wasted
 							abort ("It appears you lost the last combat, look into that");
 						}
