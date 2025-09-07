@@ -58,7 +58,7 @@ boolean tent_open() {
 
 int grates_opened() {
 	rlogs = visit_url("clan_raidlogs.php");
-	matcher sewer_grate_matcher = create_matcher("\\bopened\\s+(\\d+)\\s+sewer grates?", rlogs);
+	matcher sewer_grate_matcher = create_matcher("opened a?\\d?+ sewer grates? \\((\\d+) turn", rlogs);
 	int sewer_grate_turns = 0;
 	while (sewer_grate_matcher.find())
 		sewer_grate_turns += sewer_grate_matcher.group(1).to_int();
@@ -311,17 +311,11 @@ void sewer() {
 		if (get_property("parts_collection") == "cagebot")
 			abort("There's no point in doing lucky while being a cagebot? To reset your role (ie mosher or cagebot) type \"set initialized = 3\"");
 		if (item_amount($item[11-leaf clover]) < sewer_progress) { //checks if there is enough clovers
-			print("Not enough clovers?", "orange");
+			print("Not enough clovers? You have " + item_amount($item[11-leaf clover]) + " clovers, but you will need " + sewer_progress + " to clear the sewers with just clovers", "orange");
 			abort ("If you've already cleared some of the sewers manually, type set sewer_progress = how many sewers adventures are left");
 		}
 		if (my_buffedstat($stat[moxie]) < ($monster[C. H. U. M. chieftain].monster_attack() + 10) && get_property("IveGotThis") != "true")
 			abort ("Buffed moxie should be at least "+ ($monster[C. H. U. M. chieftain].monster_attack() + 10) +" to guarentee a safe passage. Contact organizers for help. If you are confident in your skillz type \"set IveGotThis = true\"");
-		if (my_adventures() < 270 && get_property("adv_checked") != "true") { //I'm approximating that 140 adventures are needed for the entire run
-			set_property("adv_checked", "true");
-			abort("I would recommend having at least 270 adventures before starting");
-		}
-		else
-			set_property("adv_checked", "true"); //setting it so that the adventure check only happens once
 		if (!outfit ("sewers")) {
 			print("No outfit named sewers (capitalization matters), wearing a generic outfit", "blue");
 			waitq(3);
@@ -427,7 +421,14 @@ void phase_one() {
 	set_property("choiceAdventure272", "2"); //skipping marketplace
 	set_property("choiceAdventure230", "2"); //shouldn't ever happen but leaving Hodgeman alone
 	set_property("choiceAdventure225", "0"); //stopping if A Tent is encountered
-	int start_adv = my_adventures();
+int start_adv = my_adventures();
+	if (my_adventures() < 165 && get_property("adv_checked") != "true") { //I'm approximating that 140 adventures are needed for the entire run
+		set_property("adv_checked", "true");
+		abort("I would recommend having at least 165 adventures from this point on");
+	}
+	else
+		set_property("adv_checked", "true"); //setting it so that the adventure check only happens once
+
 
 	if (mapimage() <= 8) { //phase 1 collect 134 hobo parts
 		int scobo_start = 135;
@@ -609,6 +610,7 @@ void phase_three() {
 							print("At tent, waiting for others to stage and mosher", "blue");
 							waitq(10);
 						}
+						print ("This line is for testing purposes. Mafia says moshes is " + get_property("moshed") + " but the script thinks the mosh has already happened", "orange");
 					} until (get_property("moshed") == "true");
 					run_choice(1);
 					chat_clan("off stage" , "hobopolis" );
@@ -620,6 +622,7 @@ void phase_three() {
 							print("At tent, waiting until everyone is staged before moshing", "blue");
 							waitq(5);
 						}
+							print ("This line is for testing purposes. Mafia says moshes is " + get_property("people_staged") + " but the script thinks that everyone's on stage", "orange");
 					} until (to_int(get_property("people_staged")) >= 6);
 					run_choice(2);
 					run_choice(2);
@@ -729,21 +732,26 @@ void phase_three() {
 	} until (mapimage() >= 25 && mapimage() != 125);
 }
 
+void finishing() {
+	if (mapimage() == 25 || mapimage() == 26) {
+	set_property("initialized" ,"1");
+	set_property("chatbotScript", get_property("chatbotScriptStorage"));
+	set_property("battleAction", "custom combat script");
+	set_property("currentMood", "apathetic");
+	foreach eli in $items[double-ice box, enchanted fire extinguisher, Gazpacho's Glacial Grimoire, witch's bra, Codex of Capsaicin Conjuration, Ol' Scratch's ash can, Ol' Scratch's manacles, Snapdragon pistil, Chester's Aquarius medallion, Engorged Sausages and You, Sinful Desires, slime-covered staff, Necrotelicomnicon, The Necbromancer's Stein, Cookbook of the Damned, Wand of Oscus]
+		if ( closet_amount( eli ) > 0)
+			take_closet(  closet_amount( eli ), eli);
+	print ("It apprears the uberhodge is up, good luck", "green");
+	} else {
+		abort("Uh oh, there was a (hopefully) one time bug, please rerun hamster");
+	}
+}
+
 void main() {
 	setup();
 	sewer();
 	phase_one();
 	phase_two();
 	phase_three();
-	if (mapimage() == 25 || mapimage() == 26) {
-		set_property("initialized" ,"1");
-		set_property("chatbotScript", get_property("chatbotScriptStorage"));
-		set_property("battleAction", "custom combat script");
-		set_property("currentMood", "apathetic");
-		foreach eli in $items[double-ice box, enchanted fire extinguisher, Gazpacho's Glacial Grimoire, witch's bra, Codex of Capsaicin Conjuration, Ol' Scratch's ash can, Ol' Scratch's manacles, Snapdragon pistil, Chester's Aquarius medallion, Engorged Sausages and You, Sinful Desires, slime-covered staff, Necrotelicomnicon, The Necbromancer's Stein, Cookbook of the Damned, Wand of Oscus]
-			if ( closet_amount( eli ) > 0)
-				take_closet(  closet_amount( eli ), eli);
-	} else {
-		abort("Uh oh, there was a (hopefully) one time bug, please rerun hamster");
-	}
+	finishing();
 }
