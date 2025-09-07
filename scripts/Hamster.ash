@@ -604,9 +604,13 @@ void phase_three() {
 				print("At marketplace");
 				run_choice(2);
 			} 
+			print ("Spent 1 turn looking for the tent", "orange");
 			if (TS_noncom == 225) {
+				print ("A tent encountered", "orange");
 				if (get_property("is_mosher") != "true") {
+					print ("Right before getting on stage", "orange");
 					run_choice(1);
+					print ("Right after getting on stage", "orange");
 					repeat {
 						while (get_property("moshed") != "true") {
 							print("At tent, waiting for others to stage and mosher", "blue");
