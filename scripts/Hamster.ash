@@ -614,9 +614,10 @@ void phase_three() {
 					repeat {
 						while (get_property("moshed") != "true") {
 							print("At tent, waiting for others to stage and mosher", "blue");
-							waitq(10);
+							wait(10);
 						}
 						print ("This line is for testing purposes. Mafia says moshes is " + get_property("moshed") + " but the script thinks the mosh has already happened", "orange");
+						wait(5);
 					} until (get_property("moshed") == "true");
 					print ("This line is for testing purposes. Mafia says moshes is " + get_property("moshed") + " but the script thinks the mosh has already happened part 2", "orange");
 					run_choice(1);
@@ -627,7 +628,7 @@ void phase_three() {
 					repeat {
 						while (to_int(get_property("people_staged")) < 6) {
 							print("At tent, waiting until everyone is staged before moshing", "blue");
-							waitq(5);
+							wait(5);
 						}
 							print ("This line is for testing purposes. Mafia says moshes is " + get_property("people_staged") + " but the script thinks that everyone's on stage", "orange");
 					} until (to_int(get_property("people_staged")) >= 6);
