@@ -14,7 +14,7 @@ role[string] roles = {
 };
 
 set_property("parts_storage", get_property("parts_collection"));
-set_property("parts_collection", user_prompt("The express purpose of this script is to help you set up your outfit and mood before running Hamster.ash. Note that mood will not be taken into account unless the effects are active while running the script. Also not that outfits that have recently changed will not be updated in mafia unless you log out and in once after changing. To begin, what part are you looking to get? \n boots --> hot \n eyes --> cold \n guts --> stench \n skulls --> spooky \n crotches --> sleaze \n skins --> physical", roles));
+set_property("parts_collection", user_prompt("The express purpose of this script is to help you set up your outfit and mood before running Hamster.ash. Note that outfits that have recently changed will not be updated in mafia unless you log out and in once after changing. To begin, what part are you looking to get? \n boots --> hot \n eyes --> cold \n guts --> stench \n skulls --> spooky \n crotches --> sleaze \n skins --> physical", roles));
 set_property("hamster_spell", user_prompt("What spell will you be using? Unfortunately this script only supports stuffed mortar shell, 30mp hobopolis spells, and 120mp hobopolis spells hamster.ash defaults to stuffed mortar shells unless you are collecting skins or don't have stuffed mortar shell or flavour of magic. If you'd like more spells DM me on discord @weaksauce3207, it's actually very little effort to add myst spells but no point in doing so if there's no interest", $strings[stuffed mortar shell, 30mp, 120mp]));
 if (get_property("parts_collection") == "skins" && get_property("hamster_spell") == "stuffed mortar shell"){
     abort("Please note that there is no way to guarantee collecting a skin with stuffed mortar shell");
@@ -42,7 +42,8 @@ if (!(outfit(get_property("parts_collection")))) {
 try{
     estimated_spelldmg = ((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier(roles[get_property("parts_collection")].ele_mod) + numeric_modifier($modifier[spell damage])) * max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)));
     set_property("currentMood", get_property("parts_collector"));
-    print(`Setting mood named {get_property("parts_collection")} (capitalization matters), again you will need to execute your mood for the effects to be taken into consideration`, "blue");
+    print(`Setting mood named {get_property("parts_collection")} (capitalization matters)`, "blue");
+    mood_execute(1);
     if (my_buffedstat($stat[moxie]) < ($monster[normal hobo].monster_attack() + 10))
         print("You have " + my_buffedstat($stat[moxie]) + " moxie, but you need at least " + ($monster[normal hobo].monster_attack() + 10) + " moxie to safely adventure at town square");
     if (estimated_spelldmg > ($monster[normal hobo].monster_hp() + 100)){
