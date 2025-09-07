@@ -250,7 +250,7 @@ void sewer() {
 		repeat {
             if (sewer_progress <= 10 && get_property("HalfnHalf") == "true") {
 				set_property("lucky_sewers", "true");
-				set_property("adv_checked", "true");
+				set_property("HalfnHalf", "false");
 				break;
 			}
 			int[item] testitems = {
@@ -327,10 +327,12 @@ void sewer() {
 			set_property("battleAction", "attack with weapon");
 		}
 		repeat { //using 11-leaf clover before adventuring in sewers once
-			if ((have_effect($effect[Lucky!]) == 0) && item_amount($item[11-leaf clover]) > 0)
-				cli_execute("use 11-leaf clover");
-			else
-				abort("Lacking clovers????");
+			if ((have_effect($effect[Lucky!]) == 0)){
+				if (item_amount($item[11-leaf clover]) == 0)
+					cli_execute("use 11-leaf clover");
+				else
+					abort("Lacking clovers????");
+			}
 			adventure(1, $location[A Maze of Sewer Tunnels]);
 			if (get_property("_lastCombatLost") == "true") //KoL Mafia detected that the last combat was lost so that the script is aborted and a whole bunch of adventures aren't wasted
 				abort ("It appears you lost the last combat, look into that");
@@ -448,7 +450,7 @@ int start_adv = my_adventures();
 
 		set_property("battleAction", "custom combat script");
 		set_property("currentMood", "apathetic");
-		while (richard("boots") < scobo_start || richard("eyes") < scobo_start || richard("guts") < scobo_start || richard("skulls") < scobo_start || richard("crotches") < scobo_start || richard("skins") < scobo_start || mapimage() <= 8) {
+		while ((richard("boots") < scobo_start || richard("eyes") < scobo_start || richard("guts") < scobo_start || richard("skulls") < scobo_start || richard("crotches") < scobo_start || richard("skins") < scobo_start) && mapimage() <= 8) {
 			foreach thing in $strings[skins, boots, skulls, eyes, crotches, guts]
 			if (richard(thing) < scobo_start)
 				print(`Looks we are short {scobo_start - richard(thing)} {thing}{thing == "crotch"?"e":""}`);
@@ -612,6 +614,7 @@ void phase_three() {
 						}
 						print ("This line is for testing purposes. Mafia says moshes is " + get_property("moshed") + " but the script thinks the mosh has already happened", "orange");
 					} until (get_property("moshed") == "true");
+					print ("This line is for testing purposes. Mafia says moshes is " + get_property("moshed") + " but the script thinks the mosh has already happened part 2", "orange");
 					run_choice(1);
 					chat_clan("off stage" , "hobopolis" );
 					waitq(3);
