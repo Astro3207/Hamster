@@ -174,7 +174,7 @@ void setup() {
 			set_property("mpAutoRecoveryTarget", 0.75);
 			set_property("chatbotScriptStorage", get_property("chatbotScript"));
 			set_property("chatbotScript", "HamsterChat.ash");
-			cli_execute("/switch hobopolis");
+			cli_execute("chat hobopolis");
 			set_property("initialized", 4); //to skip future initializations
 			break;
 		case 2:
@@ -328,9 +328,10 @@ void sewer() {
 		}
 		repeat { //using 11-leaf clover before adventuring in sewers once
 			if ((have_effect($effect[Lucky!]) == 0)){
-				if (item_amount($item[11-leaf clover]) == 0)
+				if (item_amount($item[11-leaf clover]) > 0)
 					cli_execute("use 11-leaf clover");
 				else
+					print("The script has detected that you have " + have_effect($effect[Lucky!]) + " turns of Lucky! while you have " + item_amount($item[11-leaf clover]) + " 11-leaf clovers");
 					abort("Lacking clovers????");
 			}
 			adventure(1, $location[A Maze of Sewer Tunnels]);
@@ -586,7 +587,7 @@ void phase_three() {
 		abort("You are in phase 3 too early, the script seemed to have skipped some lines, please rerun the script"); //debugging only lines
 	maximize("-combat", false);
 	repeat {
-		cli_execute("/switch hobopolis");
+		cli_execute("chat hobopolis");
 		if (tent_open()) {
 			foreach cl, it in instruments
 				if (my_class() == cl && get_property("is_mosher") != "true" && !maximize(`-combat, equip {it}`, false))
@@ -644,6 +645,9 @@ void phase_three() {
 				adv_spent = start_adv - end_adv;
 				print(adv_spent + " adventures spend doing mosh");
 				print(num_mosh() + " moshes executed", "blue");
+			} else {
+				print("The script thinks this is a wandering NC... let's hope it is", "blue");
+				run_choice(-1);
 			}
 		}
 		if (!tent_open()) {
@@ -731,7 +735,7 @@ void phase_three() {
 					if (to_int(get_property("people_unstaged")) >= 6)
 						set_property("people_unstaged", "0");
 					set_property("moshed", "false");
-					cli_execute("/switch hobopolis");
+					cli_execute("chat hobopolis");
 					waitq(10);
 				}
 			}
