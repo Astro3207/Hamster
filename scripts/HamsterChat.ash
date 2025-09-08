@@ -13,11 +13,5 @@ void main (string sender , string message, string channel){
          people_unstaged += 1;
          set_property("people_unstaged" , people_unstaged);
       }
-      if (contains_text(message, "update")){
-         cli_execute("git update Hamster");
-      }
-      if (contains_text(message, my_name())){
-         cli_execute("Hamster.ash");
-      }
    }
 }
