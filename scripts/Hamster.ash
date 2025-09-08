@@ -460,7 +460,7 @@ int start_adv = my_adventures();
 			if (richard("boots") >= scobo_start && richard("eyes") >= scobo_start && richard("guts") >= scobo_start && richard("skulls") >= scobo_start && richard("crotches") >= scobo_start && richard("skins") >= scobo_start && mapimage() <= 8)
 				break;
 		}
-		print(`{start_adv - my_adventures()} adventures spend collecting parts`);
+		print(`{start_adv - my_adventures()} adventures spent collecting parts`);
 	}
 }
 
@@ -524,7 +524,6 @@ void phase_two() {
 				foreach part in roles
 					if (!($strings[scarehobo, cagebot] contains part)){
 						total += min(n, richard(part));
-						print ("Estmated scobos to make is = " + scobo_to_use); //debugging line
 						if (total >= needed) {
 							scobo_to_use = n;
 							set_property("scobo_needed", `{n}`);
@@ -605,22 +604,16 @@ void phase_three() {
 				print("At marketplace");
 				run_choice(2);
 			} 
-			print ("Spent 1 turn looking for the tent", "orange");
 			if (TS_noncom == 225) {
-				print ("A tent encountered", "orange");
 				if (get_property("is_mosher") != "true") {
-					print ("Right before getting on stage", "orange");
 					run_choice(1);
-					print ("Right after getting on stage", "orange");
 					repeat {
 						while (get_property("moshed") != "true") {
 							print("At tent, waiting for others to stage and mosher", "blue");
-							wait(10);
+							waitq(10);
 						}
-						print ("This line is for testing purposes. Mafia says moshes is " + get_property("moshed") + " but the script thinks the mosh has already happened", "orange");
 						wait(5);
 					} until (get_property("moshed") == "true");
-					print ("This line is for testing purposes. Mafia says moshes is " + get_property("moshed") + " but the script thinks the mosh has already happened part 2", "orange");
 					run_choice(1);
 					chat_clan("off stage" , "hobopolis" );
 					waitq(3);
@@ -629,9 +622,8 @@ void phase_three() {
 					repeat {
 						while (to_int(get_property("people_staged")) < 6) {
 							print("At tent, waiting until everyone is staged before moshing", "blue");
-							wait(5);
+							waitq(5);
 						}
-							print ("This line is for testing purposes. Mafia says moshes is " + get_property("people_staged") + " but the script thinks that everyone's on stage", "orange");
 					} until (to_int(get_property("people_staged")) >= 6);
 					run_choice(2);
 					run_choice(2);
@@ -711,7 +703,6 @@ void phase_three() {
 									abort ("It appears you lost the last combat, look into that");
 								if (tent_open())
 									break;
-								print(num_mosh() + " moshes executed and " + min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins")) + " scobos available to make", "blue");
 								if (num_mosh() >= 7 && min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins")) >= 1) {
 									visit_url("clan_hobopolis.php?preaction=simulacrum&place=3&qty="+ min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins")));
 									waitq(3);
