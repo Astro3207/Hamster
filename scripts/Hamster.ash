@@ -607,24 +607,19 @@ void phase_three() {
 			if (TS_noncom == 225) {
 				if (get_property("is_mosher") != "true") {
 					run_choice(1);
-					repeat {
-						while (get_property("moshed") != "true") {
-							print("At tent, waiting for others to stage and mosher", "blue");
-							waitq(10);
-						}
-						wait(5);
-					} until (get_property("moshed") == "true");
+					while (get_property("moshed") != "true") {
+						print("At tent, waiting for others to stage and mosher", "blue");
+						waitq(10);
+					}
 					run_choice(1);
 					chat_clan("off stage" , "hobopolis" );
 					waitq(3);
 				}
 				if (get_property("is_mosher") == "true") {
-					repeat {
-						while (to_int(get_property("people_staged")) < 6) {
-							print("At tent, waiting until everyone is staged before moshing", "blue");
-							waitq(5);
-						}
-					} until (to_int(get_property("people_staged")) >= 6);
+					while (to_int(get_property("people_staged")) < 6) {
+						print("At tent, waiting until everyone is staged before moshing", "blue");
+						waitq(5);
+					}
 					run_choice(2);
 					run_choice(2);
 					waitq(5);
