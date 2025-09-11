@@ -132,10 +132,12 @@ void setup() {
 	set_property("battleAction", "custom combat script");
 	set_auto_attack(0);
 
-	foreach eli in $items[double-ice box, enchanted fire extinguisher, Gazpacho's Glacial Grimoire, witch's bra, Codex of Capsaicin Conjuration, Ol' Scratch's ash can, Ol' Scratch's manacles, Snapdragon pistil, Chester's Aquarius medallion, Engorged Sausages and You, Sinful Desires, slime-covered staff, Necrotelicomnicon, The Necbromancer's Stein, Cookbook of the Damned, Wand of Oscus]
+	foreach eli in $items[double-ice box, enchanted fire extinguisher, Gazpacho's Glacial Grimoire, witch's bra, Codex of Capsaicin Conjuration, Ol' Scratch's ash can, Ol' Scratch's manacles, Snapdragon pistil, Chester's Aquarius medallion, Engorged Sausages and You, Sinful Desires, slime-covered staff, Necrotelicomnicon, The Necbromancer's Stein, Cookbook of the Damned, Wand of Oscus]{
+		if ( have_equipped( eli ))
+			cli_execute("unequip " + eli);
 		if (item_amount( eli ) > 0)
 			put_closet( item_amount( eli ), eli);
-
+	}
 	string sewer_image = visit_url("clan_hobopolis.php");
 	if (!contains_text(visit_url("clan_basement.php?fromabove=1"), "opengrate.gif"))
 		abort("Either you are in a choice or hobopolis isn't open yet");
@@ -168,13 +170,15 @@ void setup() {
 			set_property("moshed" , "false");
 			set_property("people_unstaged" , "0");
 			set_property("tent_stage", "unstarted");
+			set_property("scobo_needed", 0);
 			set_property("hpAutoRecovery", 0.5);
 			set_property("hpAutoRecoveryTarget", 0.95);
 			set_property("mpAutoRecovery", 0.25);
 			set_property("mpAutoRecoveryTarget", 0.75);
 			set_property("chatbotScriptStorage", get_property("chatbotScript"));
 			set_property("chatbotScript", "HamsterChat.ash");
-			cli_execute("chat hobopolis");
+			cli_execute("chat");
+			cli_execute("/switch hobopolis");
 			set_property("initialized", 4); //to skip future initializations
 			break;
 		case 2:
@@ -328,11 +332,12 @@ void sewer() {
 		}
 		repeat { //using 11-leaf clover before adventuring in sewers once
 			if ((have_effect($effect[Lucky!]) == 0)){
-				if (item_amount($item[11-leaf clover]) > 0)
+				if (item_amount($item[11-leaf clover]) > 0){
 					cli_execute("use 11-leaf clover");
-				else
+				} else {
 					print("The script has detected that you have " + have_effect($effect[Lucky!]) + " turns of Lucky! while you have " + item_amount($item[11-leaf clover]) + " 11-leaf clovers");
 					abort("Lacking clovers????");
+				}
 			}
 			adventure(1, $location[A Maze of Sewer Tunnels]);
 			if (get_property("_lastCombatLost") == "true") //KoL Mafia detected that the last combat was lost so that the script is aborted and a whole bunch of adventures aren't wasted
@@ -455,7 +460,7 @@ int start_adv = my_adventures();
 			foreach thing in $strings[skins, boots, skulls, eyes, crotches, guts]
 			if (richard(thing) < scobo_start)
 				print(`Looks we are short {scobo_start - richard(thing)} {thing}{thing == "crotch"?"e":""}`);
-			print("Not all parts have been collected, waiting");
+			print("Not all parts have been collected, waiting. If you'd like to change roles type \"set initialized = 3\"");
 			waitq(5);
 			if (richard("boots") >= scobo_start && richard("eyes") >= scobo_start && richard("guts") >= scobo_start && richard("skulls") >= scobo_start && richard("crotches") >= scobo_start && richard("skins") >= scobo_start && mapimage() <= 8)
 				break;
@@ -544,7 +549,7 @@ void phase_two() {
 			}
 		if (to_int(get_property("scobo_needed")) < 9){
 			set_property("scobo_needed", "");
-			abort("Looks like the script skipped some lines please rerun the script"); //debugging lines
+			abort("Looks like the script skipped some lines please rerun the script as scobos needed is definitely too low"); //debugging lines
 		}
 		set_property("scobo_needed", "");
 		visit_url("clan_hobopolis.php?preaction=simulacrum&place=3&qty="+scobo_to_use);
@@ -586,7 +591,8 @@ void phase_three() {
 		abort("You are in phase 3 too early, the script seemed to have skipped some lines, please rerun the script"); //debugging only lines
 	maximize("-combat", false);
 	repeat {
-		cli_execute("chat hobopolis");
+		cli_execute("chat");
+		cli_execute("/switch hobopolis");
 		if (tent_open()) {
 			foreach cl, it in instruments
 				if (my_class() == cl && get_property("is_mosher") != "true" && !maximize(`-combat, equip {it}`, false))
@@ -632,7 +638,7 @@ void phase_three() {
 				adv_spent = start_adv - end_adv;
 				print(adv_spent + " adventures spend doing mosh");
 				print(num_mosh() + " moshes executed", "blue");
-			} else {
+			} else if (matcher_TS_noncom.find()){
 				print("The script thinks this is a wandering NC... let's hope it is", "blue");
 				run_choice(-1);
 			}
@@ -721,13 +727,13 @@ void phase_three() {
 					if (to_int(get_property("people_unstaged")) >= 6)
 						set_property("people_unstaged", "0");
 					set_property("moshed", "false");
-					cli_execute("chat hobopolis");
+					cli_execute("/switch hobopolis");
 					waitq(10);
 				}
 			}
 			start_adv = my_adventures();
 		}
-	} until (mapimage() >= 25 && mapimage() != 125);
+	} until ((mapimage() >= 25 && mapimage() != 125) || num_mosh() >= 8);
 }
 
 void finishing() {
