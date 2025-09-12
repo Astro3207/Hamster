@@ -170,7 +170,7 @@ void setup() {
 			set_property("moshed" , "false");
 			set_property("people_unstaged" , "0");
 			set_property("tent_stage", "unstarted");
-			set_property("scobo_needed", 0);
+			set_property("scobo_needed", "");
 			set_property("hpAutoRecovery", 0.5);
 			set_property("hpAutoRecoveryTarget", 0.95);
 			set_property("mpAutoRecovery", 0.25);
@@ -429,7 +429,7 @@ void phase_one() {
 	set_property("choiceAdventure272", "2"); //skipping marketplace
 	set_property("choiceAdventure230", "2"); //shouldn't ever happen but leaving Hodgeman alone
 	set_property("choiceAdventure225", "0"); //stopping if A Tent is encountered
-int start_adv = my_adventures();
+	int start_adv = my_adventures();
 	if (my_adventures() < 165 && get_property("adv_checked") != "true") { //I'm approximating that 140 adventures are needed for the entire run
 		set_property("adv_checked", "true");
 		abort("I would recommend having at least 165 adventures from this point on");
@@ -591,7 +591,6 @@ void phase_three() {
 		abort("You are in phase 3 too early, the script seemed to have skipped some lines, please rerun the script"); //debugging only lines
 	maximize("-combat", false);
 	repeat {
-		cli_execute("chat");
 		cli_execute("/switch hobopolis");
 		if (tent_open()) {
 			foreach cl, it in instruments
@@ -602,45 +601,46 @@ void phase_three() {
 			int TS_noncom = 0;
 			string town_square = visit_url("adventure.php?snarfblat=167");
 			matcher matcher_TS_noncom = create_matcher("whichchoice value=(\\d+)", town_square); 
-			if (matcher_TS_noncom.find())
+			if (matcher_TS_noncom.find()){
 				TS_noncom += matcher_TS_noncom.group(1).to_int();
-			else
+				if (TS_noncom == 272) {
+					print("At marketplace");
+					run_choice(2);
+				} 
+				if (TS_noncom == 225) {
+					if (get_property("is_mosher") != "true") {
+						run_choice(1);
+						while (get_property("moshed") != "true") {
+							print("At tent, waiting for others to stage and mosher", "blue");
+							waitq(10);
+						}
+						run_choice(1);
+						chat_clan("off stage" , "hobopolis" );
+						waitq(3);
+					}
+					if (get_property("is_mosher") == "true") {
+						while (to_int(get_property("people_staged")) < 6) {
+							print("At tent, waiting until everyone is staged before moshing", "blue");
+							waitq(5);
+						}
+						run_choice(2);
+						run_choice(2);
+						waitq(5);
+						while (get_property("moshed") != "true") {
+							print("Waiting until KoL recognizes the mosh", "blue");
+							waitq(5);
+						}
+					}
+					end_adv = my_adventures();
+					adv_spent = start_adv - end_adv;
+					print(adv_spent + " adventures spend doing mosh");
+					print(num_mosh() + " moshes executed", "blue");
+				} else {
+					print("The script thinks this is a wandering NC... let's hope it is", "blue");
+					run_choice(-1);
+				}
+			} else {
 				run_combat();
-			if (TS_noncom == 272) {
-				print("At marketplace");
-				run_choice(2);
-			} 
-			if (TS_noncom == 225) {
-				if (get_property("is_mosher") != "true") {
-					run_choice(1);
-					while (get_property("moshed") != "true") {
-						print("At tent, waiting for others to stage and mosher", "blue");
-						waitq(10);
-					}
-					run_choice(1);
-					chat_clan("off stage" , "hobopolis" );
-					waitq(3);
-				}
-				if (get_property("is_mosher") == "true") {
-					while (to_int(get_property("people_staged")) < 6) {
-						print("At tent, waiting until everyone is staged before moshing", "blue");
-						waitq(5);
-					}
-					run_choice(2);
-					run_choice(2);
-					waitq(5);
-					while (get_property("moshed") != "true") {
-						print("Waiting until KoL recognizes the mosh", "blue");
-						waitq(5);
-					}
-				}
-				end_adv = my_adventures();
-				adv_spent = start_adv - end_adv;
-				print(adv_spent + " adventures spend doing mosh");
-				print(num_mosh() + " moshes executed", "blue");
-			} else if (matcher_TS_noncom.find()){
-				print("The script thinks this is a wandering NC... let's hope it is", "blue");
-				run_choice(-1);
 			}
 		}
 		if (!tent_open()) {
@@ -656,6 +656,9 @@ void phase_three() {
 					set_property("people_unstaged", "0");
 					set_property("moshed", "false");
 					waitq(5);
+				}
+				if (num_mosh() == 8){
+					break;
 				}
 				if (get_property("tent_stage") != "stage1") {
 					set_property("tent_stage", "started");
@@ -721,7 +724,7 @@ void phase_three() {
 				adv_spent = start_adv - end_adv;
 				print(adv_spent + " adventures spent opening the next tent");
 			} else {
-				while (!tent_open() && mapimage() < 25) {
+				while (!tent_open() && (mapimage() < 25 && mapimage() != 125)) {
 					print("Waiting for tent to open");
 					set_property("people_staged", "0");
 					if (to_int(get_property("people_unstaged")) >= 6)
@@ -731,6 +734,7 @@ void phase_three() {
 					waitq(10);
 				}
 			}
+			cli_execute("chat");
 			start_adv = my_adventures();
 		}
 	} until ((mapimage() >= 25 && mapimage() != 125) || num_mosh() >= 8);
@@ -738,14 +742,14 @@ void phase_three() {
 
 void finishing() {
 	if (mapimage() == 25 || mapimage() == 26) {
-	set_property("initialized" ,"1");
-	set_property("chatbotScript", get_property("chatbotScriptStorage"));
-	set_property("battleAction", "custom combat script");
-	set_property("currentMood", "apathetic");
-	foreach eli in $items[double-ice box, enchanted fire extinguisher, Gazpacho's Glacial Grimoire, witch's bra, Codex of Capsaicin Conjuration, Ol' Scratch's ash can, Ol' Scratch's manacles, Snapdragon pistil, Chester's Aquarius medallion, Engorged Sausages and You, Sinful Desires, slime-covered staff, Necrotelicomnicon, The Necbromancer's Stein, Cookbook of the Damned, Wand of Oscus]
-		if ( closet_amount( eli ) > 0)
-			take_closet(  closet_amount( eli ), eli);
-	print ("It apprears the uberhodge is up, good luck", "green");
+		set_property("initialized" ,"1");
+		set_property("chatbotScript", get_property("chatbotScriptStorage"));
+		set_property("battleAction", "custom combat script");
+		set_property("currentMood", "apathetic");
+		foreach eli in $items[double-ice box, enchanted fire extinguisher, Gazpacho's Glacial Grimoire, witch's bra, Codex of Capsaicin Conjuration, Ol' Scratch's ash can, Ol' Scratch's manacles, Snapdragon pistil, Chester's Aquarius medallion, Engorged Sausages and You, Sinful Desires, slime-covered staff, Necrotelicomnicon, The Necbromancer's Stein, Cookbook of the Damned, Wand of Oscus]
+			if ( closet_amount( eli ) > 0)
+				take_closet(  closet_amount( eli ), eli);
+		print ("It apprears the uberhodge is up, good luck", "green");
 	} else {
 		abort("Uh oh, there was a (hopefully) one time bug, please rerun hamster");
 	}
