@@ -17,9 +17,6 @@ if (!have_skill($skill[Grease Up])){
     abort("Missing skill grease up");
 }
 cli_execute("maximize -1000 Stackable Mana Cost, mp");
-if (item_amount($item[designer sweatpants]) > 0){
-    equip($item[designer sweatpants]);
-}
 int cost = (((mp_cost( $skill[Grease Up] )-6) * 3901)/10) * npc_price( $item[Doc Galaktik\'s Invigorating Tonic] );
 if (!user_confirm ("This will cost an estimated " + cost + " meat (not including jewel-eyed wizard hat) and one pocket wish. For cost savings see the wiki for Skill MP Cost Modifiers and NPC Store Price Modifiers. Continue with buffing up?")){
     abort();
