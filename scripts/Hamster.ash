@@ -724,7 +724,7 @@ void phase_three() {
 				adv_spent = start_adv - end_adv;
 				print(adv_spent + " adventures spent opening the next tent");
 			} else {
-				while (!tent_open() && (mapimage() < 25 && mapimage() != 125)) {
+				while (!tent_open() && (mapimage() < 25 || mapimage() == 125)) {
 					print("Waiting for tent to open");
 					set_property("people_staged", "0");
 					if (to_int(get_property("people_unstaged")) >= 6)
