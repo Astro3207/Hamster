@@ -6,6 +6,7 @@ int mapimage() {
 		mapnumber += matcher_mapnumber.group(1).to_int();
 	return mapnumber;
 }
+visit_url("account.php?am=1&action=flag_aabosses&value=1&ajax=1");
 
 if (mapimage() != 25){
     if (!user_confirm("Looks like Hodge is not up, continue?")){
