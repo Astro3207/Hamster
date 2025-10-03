@@ -132,6 +132,10 @@ void setup() {
 	set_property("battleAction", "custom combat script");
 	set_auto_attack(0);
 
+	if (my_inebriety() > inebriety_limit() || (my_inebriety() == inebriety_limit() && my_familiar() == $familiar[stooper])){
+		abort("Looks like you are overdrunk or nearly there with stooper equipped, use a spice melange or something?");
+	}
+
 	foreach eli in $items[double-ice box, enchanted fire extinguisher, Gazpacho's Glacial Grimoire, witch's bra, Codex of Capsaicin Conjuration, Ol' Scratch's ash can, Ol' Scratch's manacles, Snapdragon pistil, Chester's Aquarius medallion, Engorged Sausages and You, Sinful Desires, slime-covered staff, Necrotelicomnicon, The Necbromancer's Stein, Cookbook of the Damned, Wand of Oscus]{
 		if ( have_equipped( eli ))
 			cli_execute("unequip " + eli);
