@@ -13,7 +13,7 @@ void main (string sender , string message, string channel){
       if (contains_text(message, "got a mosh pit going")){
          set_property("moshed" , "true");
       }
-      if (contains_text(message, "off stage")){
+      if (contains_text(message, "offstage")){
          int people_unstaged = to_int(get_property("people_unstaged"));
          people_unstaged += 1;
          set_property("people_unstaged" , people_unstaged);
