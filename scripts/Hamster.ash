@@ -58,10 +58,10 @@ boolean tent_open() {
 
 int grates_opened() {
 	rlogs = visit_url("clan_raidlogs.php");
-	matcher sewer_grate_matcher = create_matcher("opened a?\\d?+ sewer grates? \\((\\d+) turn", rlogs);
+	matcher sewer_grate_matcher = create_matcher("opened a?(\\d+)? sewer grates? \\((\\d+) turn", rlogs);
 	int sewer_grate_turns = 0;
 	while (sewer_grate_matcher.find())
-		sewer_grate_turns += sewer_grate_matcher.group(1).to_int();
+		sewer_grate_turns += sewer_grate_matcher.group(2).to_int();
 	return sewer_grate_turns;
 }
 
@@ -619,7 +619,7 @@ void phase_three() {
 							waitq(10);
 						}
 						run_choice(1);
-						chat_clan("off stage" , "hobopolis" );
+						chat_clan("offstage" , "hobopolis" );
 						waitq(3);
 					}
 					if (get_property("is_mosher") == "true") {
