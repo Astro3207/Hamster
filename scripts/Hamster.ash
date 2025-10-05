@@ -1,4 +1,17 @@
 import Hamargs;
+string[string] settings ={
+	"help": "false",
+	"roles": "false",
+	"sewers": "false",
+	"tent": "false",
+	"boots": "0",
+	"eyes": "0",
+	"guts": "0",
+	"skulls": "0",
+	"crotches": "0",
+	"skins": "0",
+	"MTR" : get_property("HaMTR")
+};
 record role {
 	string ele;
 	modifier ele_mod;
@@ -132,89 +145,98 @@ float estimated_spelldmg(){
 void setup() {
 	buffer ccs = "if hasskill snokebomb; skill snokebomb; endif;if !monstername frog && !monstername newt && !monstername salamander; skill CLEESH; endif; attack;";
 	write_ccs(ccs, "cleesh free runaway");
-
 	if (have_skill($skill[stuffed mortar shell])){
 		if (item_amount($item[seal tooth]) == 0)
 			cli_execute("acquire seal tooth");
 		buffer auto_parts = "if hasskill stuffed mortar shell; skill stuffed mortar shell; endif; use seal tooth;";
 			write_ccs(auto_parts, "auto_parts");
 	}
-
-    if (settings.get_help("help") == true){
-        print_html("<b><font color=0000ff>hamster roles</font color=0000ff></b> will allow you to change your role and keep running");
-        print_html("<font color=0000ff><b>hamster <i>parts</i></b> [boots | eyes | guts | skulls | crotches | skins] <b><i>int</i></b></font color=0000ff> will allow you to collect the specified number of parts");
-        print_html("<font color=0000ff><b>hamster sewer</b></font color=0000ff> will complete sewers (no grates and no lucky) and exit. Probably not the best bang for your buck for personal use.");
-        print_html("<font color=0000ff><b>hamster tent</b></font color=0000ff> will use 1 scobo at a time and making parts as necessary until tent is open. Intended to be used if you aren't sure how many kills until the next tent");
-        exit;
-    }
-
 	set_property("battleAction", "custom combat script");
-	set_auto_attack(0);
-
-	if (avoid_gear()){
-		print("Putting away gear that may change the element of your attack");
+	if (settings.get_bool("MTR")){
+		set_property("HaMTR", "true");
+	} else {
+		set_property("HaMTR", "false");
 	}
-	
-	if (!contains_text(visit_url("clan_basement.php?fromabove=1"), "opengrate.gif"))
-		abort("Either you are in a choice or hobopolis isn't open yet");
+
+	if (settings.get_bool("sewers") == false){
+		if (settings.get_bool("help") == true){
+			print_html("<b><font color=0000ff>hamster roles</font color=0000ff></b> will allow you to change your role and keep running");
+			print_html("<b><font color=0000ff>hamster MTR=[true|false]</font color=0000ff></b> if set to true an override for mafia thumb ring to acc3 will be put in");
+			print_html("<font color=0000ff><b>hamster <i>parts=int</i></font color=0000ff></b> options are:[boots | eyes | guts | skulls | crotches | skins] will allow you to collect the specified number of parts");
+			print_html("<font color=0000ff><b>hamster sewers</b></font color=0000ff> will complete sewers (no grates and no lucky) and exit. Probably not the best bang for your buck for personal use.");
+			print_html("<font color=0000ff><b>hamster tent</b></font color=0000ff> will use 1 scobo at a time and making parts as necessary until tent is open. Intended to be used if you aren't sure how many kills until the next tent");
+			exit;
+		}
+
+		if (avoid_gear())
+			print("Putting away gear that may change the element of your attack");
 		
-	if ((get_property("initialized") == "1") || get_property("initialized") == ""){
-		if (contains_text(sewer_image,"otherimages/hobopolis/sewer3.gif")){
-			if (user_confirm("The script has detected that you have not been given a role and you have already started sewers. Press yes to continue to assign your role, press no to abort and figure out what happened") == false) {
-				abort();
+		if (!contains_text(visit_url("clan_basement.php?fromabove=1"), "opengrate.gif"))
+			abort("Either you are in a choice or hobopolis isn't open yet");
+			
+		if ((get_property("initialized") == "1") || get_property("initialized") == ""){
+			if (contains_text(sewer_image,"otherimages/hobopolis/sewer3.gif")){
+				if (user_confirm("The script has detected that you have not been given a role and you have already started sewers. Press yes to continue to assign your role, press no to abort and figure out what happened") == false) {
+					abort();
+				}
+			}
+		} else if(contains_text(sewer_image,"otherimages/hobopolis/sewer1.gif") && !contains_text(sewer_image, "otherimages/hobopolis/sewer3.gif")){
+			if (user_confirm("The script has detected that your last hamster run may have been incomplete, press yes if you have not adventured in sewers yet and need to set up, press no if you have already set up")){
+				set_property("initialized", 1);
 			}
 		}
-	} else if(contains_text(sewer_image,"otherimages/hobopolis/sewer1.gif") && !contains_text(sewer_image, "otherimages/hobopolis/sewer3.gif")){
-		if (user_confirm("The script has detected that your last hamster run may have been incomplete, press yes if you have not adventured in sewers yet and need to set up, press no if you have already set up")){
-			set_property("initialized", 1);
-		}
-	}
 
-	switch (to_int(get_property("initialized"))) {
-		case 0:
-		case 1:
-			set_property("sewer_progress", 100); //saying that there's 100 chieftans until sewers is cleared
-			if (!user_confirm("You are currently in the clan "+get_clan_name()+" is the correct?"))
-				abort();
-			set_property("is_mosher", user_confirm("Are you the mosher?"));
-			set_property("parts_collection", user_prompt("What part will you be collecting?", roles));
-			if (get_property("parts_collection") == "")
-				abort();
-			set_property("IveGotThis", "false");
-			set_property("adv_checked", "false");
-			set_property("people_staged" , "0");
-			set_property("moshed" , "false");
-			set_property("people_unstaged" , "0");
-			set_property("tent_stage", "unstarted");
-			set_property("scobo_needed", "");
-			set_property("hpAutoRecovery", 0.5);
-			set_property("hpAutoRecoveryTarget", 0.95);
-			set_property("mpAutoRecovery", 0.25);
-			set_property("mpAutoRecoveryTarget", 0.75);
-			cli_execute("chat");
-			cli_execute("/switch hobopolis");
-			set_property("initialized", 4); //to skip future initializations
-			break;
-		case 2:
-			if (contains_text(sewer_image, "otherimages/hobopolis/sewer3.gif") && !contains_text(sewer_image, "otherimages/hobopolis/deeper.gif"))
+		if (settings.get_bool("roles"))
+			set_property("initialized", "3");
+
+		set_property("chatbotScript", "HamsterChat.ash");
+		set_property("autoSatisfyWithCloset", "false");
+		switch (to_int(get_property("initialized"))) {
+			case 0:
+			case 1:
+				set_property("sewer_progress", 100); //saying that there's 100 chieftans until sewers is cleared
+				if (!user_confirm("You are currently in the clan "+get_clan_name()+" is the correct?"))
+					abort();
+				set_property("is_mosher", user_confirm("Are you the mosher?"));
+				set_property("parts_collection", user_prompt("What part will you be collecting?", roles));
+				if (get_property("parts_collection") == "")
+					abort();
+				set_property("IveGotThis", "false");
+				set_property("adv_checked", "false");
+				set_property("people_staged" , "0");
+				set_property("moshed" , "false");
+				set_property("people_unstaged" , "0");
+				set_property("tent_stage", "unstarted");
+				set_property("scobo_needed", "");
+				set_property("hpAutoRecovery", 0.5);
+				set_property("hpAutoRecoveryTarget", 0.95);
+				set_property("mpAutoRecovery", 0.25);
+				set_property("mpAutoRecoveryTarget", 0.75);
+				cli_execute("chat");
+				cli_execute("/switch hobopolis");
+				set_property("initialized", 4); //to skip future initializations
 				break;
-			set_property("sewer_progress", 100); //saying that there's 100 chieftans until sewers is cleared
-			break;
-		case 3:
-			set_property("is_mosher", user_confirm("Are you the mosher?"));
-			set_property("parts_collection", user_prompt("What part will you be collecting?", roles));
-			if (get_property("parts_collection") == "")
-				abort();
-			set_property("initialized", 4);
-	}
-	if (get_property("is_mosher") != "true" && get_property("parts_collection") != "cagebot"){
-		foreach cl, it in instruments{
-			try {
-				if (my_class() == cl && closet_amount( it ) > 0)
-					take_closet( 1 , it );
-			} finally {
-				if (my_class() == cl && item_amount(it) < 1 && equipped_item($slot[off-hand]) != it)
-					abort("Missing your class instrument? To reset your role (e.g. to mosher or cagebot), type hamster roles");
+			case 2:
+				if (contains_text(sewer_image, "otherimages/hobopolis/sewer3.gif") && !contains_text(sewer_image, "otherimages/hobopolis/deeper.gif"))
+					break;
+				set_property("sewer_progress", 100); //saying that there's 100 chieftans until sewers is cleared
+				break;
+			case 3:
+				set_property("is_mosher", user_confirm("Are you the mosher?"));
+				set_property("parts_collection", user_prompt("What part will you be collecting?", roles));
+				if (get_property("parts_collection") == "")
+					abort();
+				set_property("initialized", 4);
+		}
+		if (get_property("is_mosher") != "true" && get_property("parts_collection") != "cagebot"){
+			foreach cl, it in instruments{
+				try {
+					if (my_class() == cl && closet_amount( it ) > 0)
+						take_closet( 1 , it );
+				} finally {
+					if (my_class() == cl && item_amount(it) < 1 && equipped_item($slot[off-hand]) != it)
+						abort("Missing your class instrument? To reset your role (e.g. to mosher or cagebot), type hamster roles");
+				}
 			}
 		}
 	}
@@ -230,10 +252,18 @@ void sewer() {
 		set_property("initialized", 2);
 		return;
 	}
-	set_property("lucky_sewers", user_confirm("Do you want to clover all the way through the sewers?"));
+	if (settings.get_bool("sewers") == false){
+		set_property("lucky_sewers", user_confirm("Do you want to clover all the way through the sewers?"));
+	} else {
+		set_property("lucky_sewers","false");
+		set_property("HalfnHalf","false");
+		if (!user_confirm("You are currently in the clan "+get_clan_name()+" is the correct?"))
+			abort();
+	}
 
 	if (get_property("lucky_sewers") == "false") {
-		set_property("HalfnHalf", user_confirm("Do you want to clover through the final 10% of the sewers?"));
+		if (settings.get_bool("sewers") == false)
+			set_property("HalfnHalf", user_confirm("Do you want to clover through the final 10% of the sewers?"));
 		set_auto_attack(0015);
 		set_ccs ("cleesh free runaway");
 		familiar famrem = my_familiar();
@@ -244,6 +274,8 @@ void sewer() {
 			}
 		if (get_property("parts_collection") == "cagebot") {
 			maximize("-combat", false);
+			if (settings.get_bool("MTR"))
+				equip($item[Mafia Thumb Ring], $slot[acc3]);
 			rlogs = visit_url("clan_raidlogs.php");
 			if (rlogs.contains_text("stared at an empty cage for a while"))
 				abort("someone else is already caged");
@@ -264,6 +296,8 @@ void sewer() {
 		set_property("choiceAdventure199", 1);
 		set_property("choiceAdventure197", 1);
 		maximize("-combat", false);
+		if (settings.get_bool("MTR"))
+			equip($item[Mafia Thumb Ring], $slot[acc3]);
 		repeat {
 			if (sewer_progress <= 10 && get_property("HalfnHalf") == "true") {
 				set_property("lucky_sewers", "true");
@@ -279,7 +313,7 @@ void sewer() {
 			};
 			foreach it, q in testitems
 				retrieve_item(q, it);
-			if (grates_opened() < 9) {
+			if (grates_opened() < 9 && settings.get_bool("sewers") == false) {
 				set_property("choiceAdventure198", 3);
 				set_property("choiceAdventure199", 2);
 				set_property("choiceAdventure197", 2);
@@ -289,6 +323,8 @@ void sewer() {
 				set_property("choiceAdventure199", 1);
 				set_property("choiceAdventure197", 1);
 				maximize("-combat, equip hobo code binder, equip gatorskin umbrella", false);
+				if (settings.get_bool("MTR"))
+					equip($item[Mafia Thumb Ring], $slot[acc3]);
 			}
 			string visit_sewers = visit_url("adventure.php?snarfblat=166");
 			int sewer_choice = 0;
@@ -336,6 +372,8 @@ void sewer() {
 			print("No outfit named sewers (capitalization matters), wearing a generic outfit", "blue");
 			waitq(3);
 			maximize("weapon damage", false);
+			if (settings.get_bool("MTR"))
+				equip($item[Mafia Thumb Ring], $slot[acc3]);
 		}
 		if (!set_ccs("sewers")) {
 			print("No custom combat script, setting auto attack to weapon", "blue");
@@ -397,18 +435,22 @@ void prep(string override) {
 				}
 			} else {
 				set_property("battleAction", "custom combat script");
-				set_auto_attack(3007);
+				if (get_auto_attack() != 3007)
+					set_auto_attack(3007);
 				base_spellD = 32;
 				myst_boost = 0.5;
 			}
 		} else {
 			print("Since you have a ccs set the stat check will not be accurate since I don't know what spell you chose", "blue");
+			set_auto_attack(0);
 			base_spellD = 30;
 			myst_boost = 0.3;
 			set_property("battleAction", "custom combat script");
 		}
 		set_property("currentMood", get_property("parts_collection"));
 		mood_execute(1);
+		if (settings.get_bool("MTR"))
+			equip($item[Mafia Thumb Ring], $slot[acc3]);
 		if ((estimated_spelldmg() < ($monster[normal hobo].monster_hp() + 100))){
 			if (!(outfit(get_property("parts_collection")))) {
 				print(`No outfit named {get_property("parts_collection")} (capitalization matters), wearing a generic outfit`, "blue");
@@ -416,6 +458,8 @@ void prep(string override) {
 					waitq(3);
 				spelldmgp_value = ((((numeric_modifier($modifier[Spell Damage Percent]) + 100 + 100)/100) * (base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier($modifier[spell damage]) + numeric_modifier(roles[get_property("parts_collection")].ele_mod))) - estimated_spelldmg())/((((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (base_spellD + (myst_boost * (my_buffedstat($stat[mysticality])+100)) + numeric_modifier($modifier[spell damage]) + numeric_modifier(roles[get_property("parts_collection")].ele_mod))* max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)))) - estimated_spelldmg());
 				maximize(`2.8 {roles[get_property("parts_collection")].ele} spell damage, {spelldmgp_value} spell damage percent, mys, -999999 lantern`, false);
+				if (settings.get_bool("MTR"))
+					equip($item[Mafia Thumb Ring], $slot[acc3]);
 			}
 		}
 		if (avoid_gear())
@@ -434,6 +478,33 @@ void prep(string override) {
 }
 void prep() {
 	prep(get_property("parts_collection"));
+}
+
+void partial_parts(){
+    foreach part in roles {
+		if (part == "cagebot" || part == "scarehobo")
+			continue;
+        if (settings.get_int(part) > 0){
+            set_property("partialParts", "true");
+            int parts_count = settings.get_int(part) + richard(part);
+            prep(part);
+            int parts_left = parts_count - richard(part);
+            while (richard(part) < parts_count) {
+                adventure(1, $location[Hobopolis Town Square]);
+                post_adv();
+                if (!LastAdvTxt().contains_text(rich_takes[part]) && last_monster() == $monster[normal hobo])
+                    abort(rich_takes[part].replace_string("takes", "failed to take"));
+                parts_left = parts_count - richard(part);
+                print(part + " left to collect: " + parts_left);
+            }
+            set_property("battleAction", "custom combat script");
+            set_property("currentMood", "apathetic");
+        }
+    }
+    if (to_boolean(get_property("partialParts"))){
+        set_property("partialParts", "false");
+        exit;
+    }
 }
 
 // clearing the first half of town square
@@ -591,15 +662,16 @@ void until_hodge() {
 			f.use_familiar();
 			break;
 		}
-	if (mapimage() < 13)
-		abort("You are in phase 3 too early, the script seemed to have skipped some lines, please rerun the script"); //debugging only lines
-	maximize("-combat", false);
 	repeat {
 		cli_execute("/switch hobopolis");
 		if (tent_open()) {
+			if (settings.get_bool("tent"))
+				exit;
 			foreach cl, it in instruments
 				if (my_class() == cl && get_property("is_mosher") != "true" && !maximize(`-combat, equip {it}`, false))
 					abort("failed to equip a hobo instrument...");
+				if (settings.get_bool("MTR"))
+					equip($item[Mafia Thumb Ring], $slot[acc3]);
 			set_auto_attack(0015);
 			set_ccs ("cleesh free runaway");
 			set_property("moshed", "false");
@@ -647,7 +719,7 @@ void until_hodge() {
 		}
 		if (!tent_open() && mapimage() != 25) {
 			use_familiar(famrem);
-			if (get_property("parts_collection") == "scarehobo") {
+			if (get_property("parts_collection") == "scarehobo" || settings.get_bool("tent")) {
 				if (get_property("moshed") == "true") {
 					while (to_int(get_property("people_unstaged")) < 6 && get_property("moshed") == "true") {
 						print("waiting for everyone to get off stage");
@@ -658,7 +730,7 @@ void until_hodge() {
 					set_property("moshed", "false");
 					waitq(5);
 				}
-				if (num_mosh() == 8){
+				if (num_mosh() == 8 || settings.get_bool("tent")){
 					set_property("tent_stage", "step1");
 				}
 				if (get_property("tent_stage") != "step1") {
@@ -704,7 +776,8 @@ void until_hodge() {
 								if (!contains_text(LastAdvTxt(), rich_takes[part])  && last_monster() == $monster[normal hobo])
 									abort(`Richard failed to take {part}`);
 								post_adv();
-								if (num_mosh() >= 7 && min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins")) >= 1) {
+								if ((num_mosh() >= 7 || settings.get_bool("tent")) && min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins")) >= 1) {
+									print("Making 1 Scobo...", "orange");
 									visit_url("clan_hobopolis.php?preaction=simulacrum&place=3&qty="+ min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins")));
 									waitq(3);
 								}
@@ -728,187 +801,45 @@ void until_hodge() {
 				}
 			}
 			cli_execute("chat");
+			maximize("-combat", false);
+			if (settings.get_bool("MTR"))
+				equip($item[Mafia Thumb Ring], $slot[acc3]);
 		}
 	} until ((mapimage() >= 25 && mapimage() != 125) || num_mosh() >= 8);
 }
 
-void arguments(string args){
-    if (contains_text(args, "help")){
-        print_html("<b><font color=0000ff>hamster roles</font color=0000ff></b> will allow you to change your role and keep running");
-        print_html("<font color=0000ff><b>hamster <i>parts</i></b> [boots | eyes | guts | skulls | crotches | skins] <b><i>int</i></b></font color=0000ff> will allow you to collect the specified number of parts");
-        print_html("<font color=0000ff><b>hamster sewer</b></font color=0000ff> will complete sewers (no grates and no lucky) and exit. Probably not the best bang for your buck for personal use.");
-        print_html("<font color=0000ff><b>hamster tent</b></font color=0000ff> will use 1 scobo at a time and making parts as necessary until tent is open. Intended to be used if you aren't sure how many kills until the next tent");
-        exit;
-    }
-    if (contains_text(args, "roles"))
-        set_property("initialized", "3");
-    if (contains_text(args, "sewer")){
-        int sewer_progress = to_int(get_property("sewer_progress"));
-        town_map = visit_url("clan_hobopolis.php?place=2");
-        if (contains_text(town_map , "clan_hobopolis.php?place=3")) { //checking if sewers is already cleared
-            print("The Maze of Sewer Tunnels is already clear", "orange") ;
-            set_property("initialized", 2);
-            exit;
-        }
-        if (!user_confirm("You are currently in the clan "+get_clan_name()+" is the correct?"))
-			abort();
-        if (!user_confirm("Press yes when you know cagebot is caged \n you can say /w ASSbot cage " + get_clan_name()))
-            abort();
-        set_property("choiceAdventure211", 0);
-        set_property("choiceAdventure212", 0);
-        set_property("choiceAdventure198", 1);
-        set_property("choiceAdventure199", 1);
-        set_property("choiceAdventure197", 1);
-        set_ccs ("cleesh free runaway");
-		set_auto_attack(0015);
-		repeat {
-			if (sewer_progress <= 10 && get_property("HalfnHalf") == "true") {
-				set_property("lucky_sewers", "true");
-				set_property("HalfnHalf", "false");
-				break;
-			}
-			int[item] testitems = {
-				$item[sewer wad]:				1,
-				$item[unfortunate dumplings]:	1,
-				$item[bottle of Ooze-O]:		1,
-				$item[gatorskin umbrella]:		1,
-				$item[oil of oiliness]:			3
-			};
-			foreach it, q in testitems
-				retrieve_item(q, it);
-			if (grates_opened() < 9) {
-				set_property("choiceAdventure198", 3);
-				set_property("choiceAdventure199", 2);
-				set_property("choiceAdventure197", 2);
-			}
-			else {
-				set_property("choiceAdventure198", 1);
-				set_property("choiceAdventure199", 1);
-				set_property("choiceAdventure197", 1);
-				maximize("-combat, equip hobo code binder, equip gatorskin umbrella", false);
-			}
-			string visit_sewers = visit_url("adventure.php?snarfblat=166");
-			int sewer_choice = 0;
-			matcher matcher_sewer_choice = create_matcher("whichchoice value=(\\d+)", visit_sewers);
-			if (matcher_sewer_choice.find() && get_property("choiceAdventure198") == "1") {
-				sewer_choice += to_int(matcher_sewer_choice.group(1));
-				string sewer_noncom = visit_url("choice.php?whichchoice="+ sewer_choice +"&option=1");
-				int[string] progress = {
-					"You head down the 'shortcut' tunnel.": 1,
-					"This ladder just goes in a big circle.": 3,
-					"You head toward the Egress.": 5,
-					"These will indubitably satisfy my refined appetite": 1,
-					"He grabs the wad and runs away": 1,
-					"He finds a bottle of Ooze-O": 1,
-					"you douse yourself with oil of oiliness": 1,
-					"your gatorskin umbrella allows you to pass beneath the sewagefall without incident": 1,
-					"looks like somebody else opened this grate from the other side": 5
-				};
-				foreach encounter, contributes in progress
-					if (sewer_noncom.contains_text(encounter))
-						sewer_progress -= contributes;
-				set_property("sewer_progress", sewer_progress);
-			}
-			else if (contains_text(visit_sewers, "Round 1"))
-				run_combat();
-			else {
-				run_choice(-1);
-				run_combat();
-			}
-			post_adv();
-		} until (get_property("lastEncounter") == "At Last!");
-        exit;
-    }
-    if (contains_text(args, "tent")){
-        while (!tent_open()) {
-            if (min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins")) >= 1) {
-                visit_url("clan_hobopolis.php?preaction=simulacrum&place=3&qty=1");
-                waitq(3);
-                print ("1 scobo made", "blue");
-                continue;
-            }
-            foreach part in roles if (!($strings[scarehobo, cagebot] contains part))
-                if (richard(part) == min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins"))) {
-                    prep(part);
-                    adventure(1, $location[Hobopolis Town Square]);
-                    if (!contains_text(LastAdvTxt(), rich_takes[part])  && last_monster() == $monster[normal hobo])
-                        abort(`Richard failed to take {part}`);
-                    if (get_property("_lastCombatLost") == "true")
-                        abort ("It appears you lost the last combat, look into that");
-                    if (tent_open())
-                        break;
-                }
-            set_property("battleAction", "custom combat script");
-            if (get_property("_lastCombatLost") == "true"){ //KoL Mafia detected that the last combat was lost so that the script is aborted and a whole bunch of adventures aren't wasted
-                abort ("It appears you lost the last combat, look into that");
-            }
-        }
-        set_property ("tent_stage", "finished");
-        exit;
-    }
-    foreach part in roles {
-        if (contains_text(args, part)){
-            set_property("partialParts", "true");
-            int parts_count = richard(part);
-            matcher matcher_parts_count = create_matcher(part + " (\\d+)", args); 
-            if (matcher_parts_count.find()){
-                parts_count += matcher_parts_count.group(1).to_int();
-            } else {
-                abort("Number of " + part + " to be made is not found");
-            }
-            prep(part);
-            int parts_left = parts_count - richard(part);
-            while (richard(part) < parts_count) {
-                adventure(1, $location[Hobopolis Town Square]);
-                if (get_property("_lastCombatLost") == "true") //KoL Mafia detected that the last combat was lost so that the script is aborted and a whole bunch of adventures aren't wasted
-                    abort ("It appears you lost the last combat, look into that");
-                if (!LastAdvTxt().contains_text(rich_takes[get_property("parts_collection")]) && last_monster() == $monster[normal hobo])
-                    abort(rich_takes[get_property("parts_collection")].replace_string("takes", "failed to take"));
-                parts_left = parts_count - richard(part);
-                print(part + " left to collect: " + parts_left);
-            }
-            set_property("battleAction", "custom combat script");
-            set_property("currentMood", "apathetic");
-        }
-    }
-    if (to_boolean(get_property("partialParts"))){
-        set_property("partialParts", "false");
-        exit;
-    }
-}
-
-void finishing() {
+void finishing(string argument) {
+	if (get_auto_attack() != 0)
+		set_auto_attack(0);
+	set_property("battleAction", "custom combat script");
+	set_property("currentMood", "apathetic");
+	set_property("chatbotScript", chatbotScriptStorage);
+	set_property("autoSatisfyWithCloset", autoSatisfyWithClosetStorage);
 	if (mapimage() == 25 || mapimage() == 26) {
 		set_property("initialized" ,"1");
-		set_property("battleAction", "custom combat script");
-		set_property("currentMood", "apathetic");
 		foreach eli in $items[double-ice box, enchanted fire extinguisher, Gazpacho's Glacial Grimoire, witch's bra, Codex of Capsaicin Conjuration, Ol' Scratch's ash can, Ol' Scratch's manacles, Snapdragon pistil, Chester's Aquarius medallion, Engorged Sausages and You, Sinful Desires, slime-covered staff, Necrotelicomnicon, The Necbromancer's Stein, Cookbook of the Damned, Wand of Oscus]
 			if ( closet_amount( eli ) > 0)
 				take_closet(  closet_amount( eli ), eli);
 		print ("It apprears the uberhodge is up, good luck", "green");
-	} else {
+	} else if (argument == ""){
 		abort("Uh oh, there was a (hopefully) one time bug, please rerun hamster");
 	}
 }
 
 void main(string... args) {
-	string[string] settings = tokenize(args, string[string]{
-		"help": "false",
-		"roles": "false",
-		"sewer": "false",
-		"tent": "false",
-	});
+	settings = tokenize(args, settings);
 	try{
-		set_property("chatbotScript", "HamsterChat.ash");
-		set_property("autoSatisfyWithCloset", "false");
 		setup();
 		sewer();
-		collections();
-		first_tent();
+		if (settings.get_bool("sewers"))
+			exit;
+		if (settings.get_bool("tent") == false){
+			partial_parts();
+			collections();
+			first_tent();
+		}
 		until_hodge();
-		finishing();
 	} finally{
-		set_property("chatbotScript", chatbotScriptStorage);
-		set_property("autoSatisfyWithCloset", autoSatisfyWithClosetStorage);
+		finishing(args[0]);
 	}
 }
