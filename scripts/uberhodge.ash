@@ -19,27 +19,39 @@ if (!have_skill($skill[Grease Up])){
 }
 cli_execute("maximize -1000 Stackable Mana Cost, mp");
 int cost = (((mp_cost( $skill[Grease Up] )-6) * 3901)/10) * npc_price( $item[Doc Galaktik\'s Invigorating Tonic] );
-if (!user_confirm ("This will cost an estimated " + cost + " meat (not including jewel-eyed wizard hat) and one pocket wish. For cost savings see the wiki for Skill MP Cost Modifiers and NPC Store Price Modifiers. Continue with buffing up?")){
+if (!user_confirm ("This will cost an estimated " + cost + " meat (not including jewel-eyed wizard hat) and one pocket wish. For cost savings see the wiki for Skill MP Cost Modifiers and NPC Store Price Modifiers and completing Doc Galaktik's Quest. Continue with buffing up?")){
     abort();
 } else {
     cli_execute("genie effect arcane in the brain; use natural magick candle");
+    if (can_equip($item[Wand of Oscus]) && can_equip($item[Oscus's dumpster waders]) && can_equip($item[Oscus's pelt])){
+        cli_execute("maximize mp -pants -acc3 - offhand; equip acc3 Oscus's pelt; equip Oscus's dumpster waders; equip Wand of Oscus");
+    } else {
+        cli_execute("maximize mp");
+    }
 }
-while (have_effect($effect[Takin\' It Greasy]) < 39010){
+while (have_effect($effect[Takin\' It Greasy]) < 397010){
     if (my_mp() < my_maxmp()){
+        int potions_to_use = (my_maxmp() - my_mp())/11;
         if (item_amount($item[designer sweatpants]) > 0){
             equip($item[designer sweatpants]);
+            cli_execute("acquire " + potions_to_use + " doc galaktik's invig");
+            if (can_equip($item[Wand of Oscus]) && can_equip($item[Oscus's dumpster waders]) && can_equip($item[Oscus's pelt])){
+                cli_execute("maximize mp -pants -acc3 - offhand; equip acc3 Oscus's pelt; equip Oscus's dumpster waders; equip Wand of Oscus");
+            } else {
+                cli_execute("maximize mp");
+            }
         }
-        int potions_to_use = (my_maxmp() - my_mp())/11;
         cli_execute("use " + potions_to_use + " doc galaktik's invig");
     }
-    cli_execute("maximize -1000 Stackable Mana Cost, mp");
     int to_cast = min(((39010-have_effect($effect[Takin\' It Greasy]))/10),my_mp()/15);
     cli_execute("cast " + to_cast +" Grease Up");
 }
 cli_execute("maximize init");
 set_auto_attack("Unleash the Greash");
 if (mapimage() == 25){
-    print("Once I get confirmation that this works, will directly fight hodge, until then you will have to enter combat manually");
+    visit_url("adventure.php?snarfblat=167");
+    run_choice(-1);
 } else {
     print ("Ready 1 hit KO hodge", "green");
 }
+set_auto_attack(0);
