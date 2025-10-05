@@ -206,7 +206,7 @@ void setup() {
 					take_closet( 1 , it );
 			} finally {
 				if (my_class() == cl && item_amount(it) < 1 && equipped_item($slot[off-hand]) != it)
-					abort("Missing your class instrument? To reset your role (e.g. to mosher or cagebot), type hamster roles");
+					abort("Missing your class instrument? To reset your role (e.g. to mosher or cagebot), type \"set initialized = 3\"");
 			}
 		}
 	}
@@ -257,7 +257,7 @@ void sewer() {
 		set_property("choiceAdventure197", 1);
 		maximize("-combat", false);
 		repeat {
-			if (sewer_progress <= 10 && get_property("HalfnHalf") == "true") {
+            if (sewer_progress <= 10 && get_property("HalfnHalf") == "true") {
 				set_property("lucky_sewers", "true");
 				set_property("HalfnHalf", "false");
 				break;
@@ -317,7 +317,7 @@ void sewer() {
 
 	if (get_property("lucky_sewers") == "true") {
 		if (get_property("parts_collection") == "cagebot")
-			abort("There's no point in doing lucky while being a cagebot? To reset your role (ie mosher or cagebot) type hamster roles");
+			abort("There's no point in doing lucky while being a cagebot? To reset your role (ie mosher or cagebot) type \"set initialized = 3\"");
 		if (item_amount($item[11-leaf clover]) < sewer_progress) { //checks if there is enough clovers
 			print("Not enough clovers? You have " + item_amount($item[11-leaf clover]) + " clovers, but you will need " + sewer_progress + " to clear the sewers with just clovers", "orange");
 			abort ("If you've already cleared some of the sewers manually, type set sewer_progress = how many sewers adventures are left");
@@ -351,11 +351,11 @@ void sewer() {
 			set_property("sewer_progress", sewer_progress);
 			print("C.H.U.M Chieftans left: " + sewer_progress, "orange");
 			town_map = visit_url("clan_hobopolis.php?place=2");
-			if(get_property("sewer_progress") == "0"){
-				adventure(1, $location[A Maze of Sewer Tunnels]);
-				if (get_property("lastEncounter") != "At Last!")
-					abort("Excpected At Last! instead got" + get_property("lastEncounter"));
-			}
+            if(get_property("sewer_progress") == "0"){
+                adventure(1, $location[A Maze of Sewer Tunnels]);
+                if (get_property("lastEncounter") != "At Last!")
+                    abort("Excpected At Last! instead got" + get_property("lastEncounter"));
+            }
 		} until (contains_text(town_map , "clan_hobopolis.php?place=3") || to_int(get_property("sewer_progress")) <= 0); //checks if town map is open or the calculations say there are 0 chieftains left
 		print("Sewers complete! (I think)", "orange");
 		set_property("battleAction", "custom combat script");
@@ -464,7 +464,7 @@ void collections() {
 			foreach thing in $strings[skins, boots, skulls, eyes, crotches, guts]
 			if (richard(thing) < scobo_start)
 				print(`Looks we are short {scobo_start - richard(thing)} {thing}{thing == "crotch"?"e":""}`);
-			print("Not all parts have been collected, waiting. If you'd like to change roles type hamster roles");
+			print("Not all parts have been collected, waiting. If you'd like to change roles type \"set initialized = 3\"");
 			waitq(5);
 			if (richard("boots") >= scobo_start && richard("eyes") >= scobo_start && richard("guts") >= scobo_start && richard("skulls") >= scobo_start && richard("crotches") >= scobo_start && richard("skins") >= scobo_start && mapimage() <= 8)
 				break;
@@ -724,61 +724,6 @@ void until_hodge() {
 	} until ((mapimage() >= 25 && mapimage() != 125) || num_mosh() >= 8);
 }
 
-void arguments(string args){
-	if (contains_text(args, "help")){
-		print_html("<b><font color=0000ff>hamster roles</font color=0000ff></b> will allow you to change your role and keep running");
-		print_html("<font color=0000ff><b>hamster <i>parts</i></b> [boots | eyes | guts | skulls | crotches | skins] <b><i>int</i></b></font color=0000ff> will allow you to collect the specified number of parts");
-		print_html("<font color=0000ff><b>hamster sewer</b></font color=0000ff> will complete sewers (no grates and no lucky) and exit. Probably not the best bang for your buck for personal use.");
-		print_html("<font color=0000ff><b>hamster tent</b></font color=0000ff> will use 1 scobo at a time and making parts as necessary until tent is open. Intended to be used if you aren't sure how many kills until the next tent");
-		exit;
-	}
-
-	if (contains_text(args, "roles")) {
-		set_property("initialized", "3");
-//		setup();, right?
-	}
-
-	// duplicated code -- if there were changes, they go in sewer()
-	if (contains_text(args, "sewer"))
-		sewer();
-
-	// duplicated code -- if there were changes, they go in phase_two()
-	// we should rename phase_one() and phase_two() to be clearer; maybe tent() and... something?
-	if (contains_text(args, "tent"))
-		phase_two();
-
-	// explain, please. is this phase one?
-	foreach part in roles {
-		if (contains_text(args, part)){
-			set_property("partialParts", "true");
-			int parts_count = richard(part);
-			matcher matcher_parts_count = create_matcher(part + " (\\d+)", args); 
-			if (matcher_parts_count.find()){
-				parts_count += matcher_parts_count.group(1).to_int();
-			} else {
-				abort("Number of " + part + " to be made is not found");
-			}
-			prep(part);
-			int parts_left = parts_count - richard(part);
-			while (richard(part) < parts_count) {
-				adventure(1, $location[Hobopolis Town Square]);
-				if (get_property("_lastCombatLost") == "true") //KoL Mafia detected that the last combat was lost so that the script is aborted and a whole bunch of adventures aren't wasted
-					abort ("It appears you lost the last combat, look into that");
-				if (!LastAdvTxt().contains_text(rich_takes[get_property("parts_collection")]) && last_monster() == $monster[normal hobo])
-					abort(rich_takes[get_property("parts_collection")].replace_string("takes", "failed to take"));
-				parts_left = parts_count - richard(part);
-				print(part + " left to collect: " + parts_left);
-			}
-			set_property("battleAction", "custom combat script");
-			set_property("currentMood", "apathetic");
-		}
-	}
-	if (to_boolean(get_property("partialParts"))){
-		set_property("partialParts", "false");
-		exit;
-	}
-}
-
 void finishing() {
 	if (mapimage() == 25 || mapimage() == 26) {
 		set_property("initialized" ,"1");
@@ -794,15 +739,15 @@ void finishing() {
 }
 
 void main() {
-		try{
+	try{
 		set_property("chatbotScript", "HamsterChat.ash");
 		set_property("autoSatisfyWithCloset", "false");
-	setup();
-	sewer();
+		setup();
+		sewer();
 		collections();
 		first_tent();
 		until_hodge();
-	finishing();
+		finishing();
 	} finally{
 		set_property("chatbotScript", chatbotScriptStorage);
 		set_property("autoSatisfyWithCloset", autoSatisfyWithClosetStorage);
