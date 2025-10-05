@@ -146,20 +146,6 @@ boolean get_bool(string[string] map, string key) {
 	}
 	return retval;
 }
-boolean get_help(string[string] map, string key) {
-	boolean retval;
-	if (!(map contains key)) {
-		print(`settings["{key}"] is unassigned, defaulting to "{retval}"`, "red");
-	}
-	else {
-		retval = map[key].to_boolean();
-		if (map[key] == "")
-			print(`settings["{key}"] == "", defaulting to "{retval}"`, "red");
-		if (map[key] != retval.to_string())
-			print(`settings["{key}"] == "{map[key]}", interpreting as "{retval}"`, "olive");
-	}
-	return retval;
-}
 
 int get_int(string[string] map, string key) {
 	int retval;
