@@ -43,7 +43,7 @@ while (have_effect($effect[Takin\' It Greasy]) < 397010){
         }
         cli_execute("use " + potions_to_use + " doc galaktik's invig");
     }
-    int to_cast = min(((39010-have_effect($effect[Takin\' It Greasy]))/10),my_mp()/15);
+    int to_cast = min(((max(0,39010-have_effect($effect[Takin\' It Greasy])))/10),my_mp()/15);
     cli_execute("cast " + to_cast +" Grease Up");
 }
 cli_execute("maximize init");
