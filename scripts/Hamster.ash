@@ -1,8 +1,11 @@
+
 import Hamargs;
 string[string] settings ={
 	"help": "false",
 	"roles": "false",
 	"sewers": "false",
+	"sewucky" : "false",
+	"lucky" : "false",
 	"tent": "false",
 	"boots": "0",
 	"eyes": "0",
@@ -138,7 +141,18 @@ void post_adv(){
 }
 
 float estimated_spelldmg(){
-	float estimate = ((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier(roles[get_property("parts_collection")].ele_mod) + numeric_modifier($modifier[spell damage])) * max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)));
+	float estimate;
+	if (get_auto_attack() == 1005){
+		float SC_bonus;
+		if (my_class() == $class[seal clubber]){
+			SC_bonus = 1.3;
+		} else{
+			SC_bonus = 1.25;
+		}
+		estimate = (floor((my_buffedstat($stat[muscle])*SC_bonus)-$monster[normal hobo].base_defense) + numeric_modifier("weapon damage")) * ((max(numeric_modifier("weapon damage percent"),0) + 100)/100) * max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)));
+	} else {
+		estimate = ((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier(roles[get_property("parts_collection")].ele_mod) + numeric_modifier($modifier[spell damage])) * max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)));
+	}
 	return estimate;
 }
 
@@ -164,6 +178,8 @@ void setup() {
 			print_html("<b><font color=0000ff>hamster MTR=[true|false]</font color=0000ff></b> if set to true an override for mafia thumb ring to acc3 will be put in");
 			print_html("<font color=0000ff><b>hamster <i>parts=int</i></font color=0000ff></b> options are:[boots | eyes | guts | skulls | crotches | skins] will allow you to collect the specified number of parts");
 			print_html("<font color=0000ff><b>hamster sewers</b></font color=0000ff> will complete sewers (no grates and no lucky) and exit. Probably not the best bang for your buck for personal use.");
+			print_html("<font color=0000ff><b>hamster sewucky</b></font color=0000ff> will use lucky to complete the last 10 explorations. Costs on average 5 clovers+adventures to save 1 trncount per person or up to 7 in total.");
+			print_html("<font color=0000ff><b>hamster lucky</b></font color=0000ff> uses lucky to complete all of sewers. Costs 100 clovers+adentures to save 8-9 turncount per person or up to 57 in total.");
 			print_html("<font color=0000ff><b>hamster tent</b></font color=0000ff> will use 1 scobo at a time and making parts as necessary until tent is open. Intended to be used if you aren't sure how many kills until the next tent");
 			exit;
 		}
@@ -194,9 +210,7 @@ void setup() {
 		switch (to_int(get_property("initialized"))) {
 			case 0:
 			case 1:
-				set_property("sewer_progress", 100); //saying that there's 100 chieftans until sewers is cleared
-				if (!user_confirm("You are currently in the clan "+get_clan_name()+" is the correct?"))
-					abort();
+				set_property("sewer_progress", 100); //saying that there's 100 chieftans until sewers is clearedW
 				set_property("is_mosher", user_confirm("Are you the mosher?"));
 				set_property("parts_collection", user_prompt("What part will you be collecting?", roles));
 				if (get_property("parts_collection") == "")
@@ -252,18 +266,10 @@ void sewer() {
 		set_property("initialized", 2);
 		return;
 	}
-	if (settings.get_bool("sewers") == false){
-		set_property("lucky_sewers", user_confirm("Do you want to clover all the way through the sewers?"));
-	} else {
-		set_property("lucky_sewers","false");
-		set_property("HalfnHalf","false");
-		if (!user_confirm("You are currently in the clan "+get_clan_name()+" is the correct?"))
-			abort();
-	}
+	if (!user_confirm("You are currently in the clan "+get_clan_name()+" is the correct?"))
+		abort();
 
-	if (get_property("lucky_sewers") == "false") {
-		if (settings.get_bool("sewers") == false)
-			set_property("HalfnHalf", user_confirm("Do you want to clover through the final 10% of the sewers?"));
+	if (settings.get_bool("lucky") == false) {
 		set_auto_attack(0015);
 		set_ccs ("cleesh free runaway");
 		familiar famrem = my_familiar();
@@ -299,9 +305,7 @@ void sewer() {
 		if (settings.get_bool("MTR"))
 			equip($item[Mafia Thumb Ring], $slot[acc3]);
 		repeat {
-			if (sewer_progress <= 10 && get_property("HalfnHalf") == "true") {
-				set_property("lucky_sewers", "true");
-				set_property("HalfnHalf", "false");
+			if (sewer_progress <= 10 && settings.get_bool("sewucky") == true) {
 				break;
 			}
 			int[item] testitems = {
@@ -359,7 +363,7 @@ void sewer() {
 		use_familiar(famrem);
 	}
 
-	if (get_property("lucky_sewers") == "true") {
+	if (settings.get_bool("lucky") == true || (settings.get_bool("sewucky") == true && sewer_progress <= 10)) {
 		if (get_property("parts_collection") == "cagebot")
 			abort("There's no point in doing lucky while being a cagebot? To reset your role (ie mosher or cagebot) type hamster roles");
 		if (item_amount($item[11-leaf clover]) < sewer_progress) { //checks if there is enough clovers
@@ -375,6 +379,7 @@ void sewer() {
 			if (settings.get_bool("MTR"))
 				equip($item[Mafia Thumb Ring], $slot[acc3]);
 		}
+		set_auto_attack(0);
 		if (!set_ccs("sewers")) {
 			print("No custom combat script, setting auto attack to weapon", "blue");
 			waitq(3);
