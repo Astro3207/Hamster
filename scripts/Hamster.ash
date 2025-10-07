@@ -813,7 +813,7 @@ void until_hodge() {
 	} until ((mapimage() >= 25 && mapimage() != 125) || num_mosh() >= 8);
 }
 
-void finishing(string argument) {
+void finishing(int argument) {
 	if (get_auto_attack() != 0)
 		set_auto_attack(0);
 	set_property("battleAction", "custom combat script");
@@ -826,7 +826,7 @@ void finishing(string argument) {
 			if ( closet_amount( eli ) > 0)
 				take_closet(  closet_amount( eli ), eli);
 		print ("It apprears the uberhodge is up, good luck", "green");
-	} else if (argument == ""){
+	} else if (argument == 0){
 		abort("Uh oh, there was a (hopefully) one time bug, please rerun hamster");
 	}
 }
@@ -845,6 +845,6 @@ void main(string... args) {
 		}
 		until_hodge();
 	} finally{
-		finishing(args[0]);
+		finishing(count(args));
 	}
 }
