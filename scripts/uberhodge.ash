@@ -50,7 +50,7 @@ cli_execute("maximize init");
 set_auto_attack("Unleash the Greash");
 if (mapimage() == 25){
     visit_url("adventure.php?snarfblat=167");
-    run_choice(-1);
+    run_choice(1);
 } else {
     print ("Ready 1 hit KO hodge", "green");
 }
