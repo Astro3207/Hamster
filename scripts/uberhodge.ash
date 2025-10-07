@@ -29,7 +29,7 @@ if (!user_confirm ("This will cost an estimated " + cost + " meat (not including
         cli_execute("maximize mp");
     }
 }
-while (have_effect($effect[Takin\' It Greasy]) < 397010){
+while (have_effect($effect[Takin\' It Greasy]) < 39010){
     if (my_mp() < my_maxmp()){
         int potions_to_use = (my_maxmp() - my_mp())/11;
         if (item_amount($item[designer sweatpants]) > 0){
