@@ -688,8 +688,7 @@ void until_hodge() {
 				if (TS_noncom == 272) {
 					print("At marketplace");
 					run_choice(2);
-				} 
-				if (TS_noncom == 225) {
+				} else if (TS_noncom == 225) {
 					if (get_property("is_mosher") != "true") {
 						run_choice(1);
 						while (get_property("moshed") != "true") {
