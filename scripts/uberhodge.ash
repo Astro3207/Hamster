@@ -23,7 +23,7 @@ if (!user_confirm ("This will cost an estimated " + cost + " meat (not including
     abort();
 } else {
     cli_execute("genie effect arcane in the brain; use natural magick candle");
-    if (can_equip($item[Wand of Oscus]) && can_equip($item[Oscus's dumpster waders]) && can_equip($item[Oscus's pelt])){
+    if (can_equip($item[Wand of Oscus]) && (item_amount($item[Wand of Oscus]) > 0 || have_equipped($item[Wand of Oscus])) && can_equip($item[Oscus's dumpster waders]) && (item_amount($item[Oscus's dumpster waders]) > 0 || have_equipped($item[Oscus's dumpster waders])) && can_equip($item[Oscus's pelt]) && (item_amount($item[Oscus's pelt]) > 0 || have_equipped($item[Oscus's pelt]))){
         cli_execute("maximize mp -pants -acc3 - offhand; equip acc3 Oscus's pelt; equip Oscus's dumpster waders; equip Wand of Oscus");
     } else {
         cli_execute("maximize mp");
@@ -35,7 +35,7 @@ while (have_effect($effect[Takin\' It Greasy]) < 39010){
         if (item_amount($item[designer sweatpants]) > 0){
             equip($item[designer sweatpants]);
             cli_execute("acquire " + potions_to_use + " doc galaktik's invig");
-            if (can_equip($item[Wand of Oscus]) && can_equip($item[Oscus's dumpster waders]) && can_equip($item[Oscus's pelt])){
+            if (can_equip($item[Wand of Oscus]) && (item_amount($item[Wand of Oscus]) > 0 || have_equipped($item[Wand of Oscus])) && can_equip($item[Oscus's dumpster waders]) && (item_amount($item[Oscus's dumpster waders]) > 0 || have_equipped($item[Oscus's dumpster waders])) && can_equip($item[Oscus's pelt]) && (item_amount($item[Oscus's pelt]) > 0 || have_equipped($item[Oscus's pelt]))){
                 cli_execute("maximize mp -pants -acc3 - offhand; equip acc3 Oscus's pelt; equip Oscus's dumpster waders; equip Wand of Oscus");
             } else {
                 cli_execute("maximize mp");
