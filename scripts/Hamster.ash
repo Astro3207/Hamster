@@ -1,5 +1,5 @@
+import varargs;
 
-import Hamargs;
 string[string] settings ={
 	"help": "false",
 	"roles": "false",
