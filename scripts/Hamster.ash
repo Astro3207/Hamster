@@ -51,6 +51,8 @@ string town_map, rlogs;
 string sewer_image = visit_url("clan_hobopolis.php");
 string chatbotScriptStorage = get_property("chatbotScript");
 string autoSatisfyWithClosetStorage = get_property("autoSatisfyWithCloset");
+string customCombatScriptStorage = get_property("customCombatScript");
+string betweenBattleScriptStorage = get_property("betweenBattleScript");
 int base_spellD;
 float spelldmgp_value, myst_boost;
 
@@ -207,6 +209,7 @@ void setup() {
 
 		set_property("chatbotScript", "HamsterChat.ash");
 		set_property("autoSatisfyWithCloset", "false");
+		set_property("betweenBattleScript","");
 		switch (to_int(get_property("initialized"))) {
 			case 0:
 			case 1:
@@ -434,9 +437,10 @@ void prep(string override) {
 				if (!have_skill(roles[get_property("parts_collection")].atk_spell)){
 					abort(`Missing skill {roles[get_property("parts_collection")].atk_spell}, please set a ccs named {get_property("parts_collection")}`);
 				} else {
-					base_spellD = 35;
-					myst_boost = 0.35;
+					base_spellD = 10;
+					myst_boost = 0.1;
 					set_auto_attack(to_int(roles[get_property("parts_collection")].atk_spell));
+					set_property("battleAction","skill " + roles[get_property("parts_collection")].atk_spell);
 				}
 			} else {
 				set_property("battleAction", "custom combat script");
@@ -530,9 +534,10 @@ void collections() {
 	if (mapimage() <= 8) { //phase 1 collect 135 hobo parts
 		int scobo_start = 135;
 		if (roles contains get_property("parts_collection") && !($strings[scarehobo, cagebot] contains get_property("parts_collection"))) {
-			prep();
 			int parts_left = scobo_start - richard(get_property("parts_collection"));
 			while (richard(get_property("parts_collection")) < scobo_start) {
+				if ((estimated_spelldmg() < ($monster[normal hobo].monster_hp() + 100)))
+					prep();
 				adventure(1, $location[Hobopolis Town Square]);
 				post_adv();
 				if (!LastAdvTxt().contains_text(rich_takes[get_property("parts_collection")]) && last_monster() == $monster[normal hobo])
@@ -688,7 +693,8 @@ void until_hodge() {
 				if (TS_noncom == 272) {
 					print("At marketplace");
 					run_choice(2);
-				} else if (TS_noncom == 225) {
+				} 
+				if (TS_noncom == 225) {
 					if (get_property("is_mosher") != "true") {
 						run_choice(1);
 						while (get_property("moshed") != "true") {
@@ -819,6 +825,8 @@ void finishing(int argument) {
 	set_property("currentMood", "apathetic");
 	set_property("chatbotScript", chatbotScriptStorage);
 	set_property("autoSatisfyWithCloset", autoSatisfyWithClosetStorage);
+	set_property("betweenBattleScript", betweenBattleScriptStorage);
+	set_ccs(customCombatScriptStorage);
 	if (mapimage() == 25 || mapimage() == 26) {
 		set_property("initialized" ,"1");
 		foreach eli in $items[double-ice box, enchanted fire extinguisher, Gazpacho's Glacial Grimoire, witch's bra, Codex of Capsaicin Conjuration, Ol' Scratch's ash can, Ol' Scratch's manacles, Snapdragon pistil, Chester's Aquarius medallion, Engorged Sausages and You, Sinful Desires, slime-covered staff, Necrotelicomnicon, The Necbromancer's Stein, Cookbook of the Damned, Wand of Oscus]
@@ -826,7 +834,7 @@ void finishing(int argument) {
 				take_closet(  closet_amount( eli ), eli);
 		print ("It apprears the uberhodge is up, good luck", "green");
 	} else if (argument == 0){
-		abort("Uh oh, there was a (hopefully) one time bug, please rerun hamster");
+		print("Uh oh, there was a (hopefully) one time bug, please rerun hamster", "red");
 	}
 }
 
