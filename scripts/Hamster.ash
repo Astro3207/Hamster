@@ -157,10 +157,10 @@ float estimated_spelldmg(){
 	}
 	return estimate;
 }
-
 void setup() {
 	buffer ccs = "if hasskill snokebomb; skill snokebomb; endif;if !monstername frog && !monstername newt && !monstername salamander; skill CLEESH; endif; attack;";
-	write_ccs(ccs, "cleesh free runaway");
+	if (to_string(read_ccs("cleesh free runaway")) == "")
+		write_ccs(ccs, "cleesh free runaway");
 	if (have_skill($skill[stuffed mortar shell])){
 		if (item_amount($item[seal tooth]) == 0)
 			cli_execute("acquire seal tooth");
@@ -726,6 +726,7 @@ void until_hodge() {
 			} else {
 				run_combat();
 			}
+			post_adv();
 		}
 		if (!tent_open() && mapimage() != 25) {
 			use_familiar(famrem);
