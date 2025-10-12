@@ -129,6 +129,7 @@ void post_adv() {
 }
 
 void skillup() {
+	return;
 	foreach ef in my_effects()
 		if (ef.song && !($effects[The Sonata of Sneakiness, Stevedave's Shanty of Superiority, The Magical Mojomuscular Melody] contains ef))
 			cli_execute("shrug " + ef);
