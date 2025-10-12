@@ -50,7 +50,6 @@ item[class] instruments = {
 string town_map, rlogs;
 string sewer_image = visit_url("clan_hobopolis.php");
 string chatbotScriptStorage = get_property("chatbotScript");
-string autoSatisfyWithClosetStorage = get_property("autoSatisfyWithCloset");
 string customCombatScriptStorage = get_property("customCombatScript");
 string betweenBattleScriptStorage = get_property("betweenBattleScript");
 int base_spellD;
@@ -120,18 +119,6 @@ int richard(string part) {
 	return part_count;
 }
 
-boolean avoid_gear() {
-	boolean bad_gear = false;
-	foreach eli in $items[double-ice box, enchanted fire extinguisher, Gazpacho's Glacial Grimoire, witch's bra, Codex of Capsaicin Conjuration, Ol' Scratch's ash can, Ol' Scratch's manacles, Snapdragon pistil, Chester's Aquarius medallion, Engorged Sausages and You, Sinful Desires, slime-covered staff, Necrotelicomnicon, The Necbromancer's Stein, Cookbook of the Damned, Wand of Oscus] {
-		while (have_equipped(eli))
-			cli_execute("unequip " + eli);
-		if (item_amount(eli) > 0)
-			bad_gear = true;
-		put_closet(item_amount(eli), eli);
-	}
-	return bad_gear;
-}
-
 void post_adv() {
 	if (get_property("_lastCombatLost") == "true")
 		abort("It appears you lost the last combat, look into that");
@@ -186,9 +173,6 @@ void setup() {
 			print_html("<font color=0000ff><b>hamster tent</b></font color=0000ff> will use 1 scobo at a time and making parts as necessary until tent is open. Intended to be used if you aren't sure how many kills until the next tent");
 			exit;
 		}
-
-		if (avoid_gear())
-			print("Putting away gear that may change the element of your attack");
 		
 		if (!contains_text(visit_url("clan_basement.php?fromabove=1"), "opengrate.gif"))
 			abort("Either you are in a choice or hobopolis isn't open yet");
@@ -206,7 +190,6 @@ void setup() {
 			set_property("initialized", "3");
 
 		set_property("chatbotScript", "HamsterChat.ash");
-		set_property("autoSatisfyWithCloset", "false");
 		set_property("betweenBattleScript","");
 		switch (to_int(get_property("initialized"))) {
 			case 0:
@@ -429,6 +412,7 @@ void prep(string override) {
 	if ($strings[scarehobo, cagebot] contains get_property("parts_collection") && override == get_property("parts_collection"))
 		return;
 	string remember = get_property("parts_collection");
+	string banned = "-equip double-ice box, -equip enchanted fire extinguisher, -equip Gazpacho's Glacial Grimoire, -equip witch's bra, -equip Codex of Capsaicin Conjuration, -equip Ol' Scratch's ash can, -equip Ol' Scratch's manacles, -equip Snapdragon pistil, -equip Chester's Aquarius medallion, -equip Engorged Sausages and You, -equip Sinful Desires, -equip slime-covered staff, -equip Necrotelicomnicon, -equip The Necbromancer's Stein, -equip Cookbook of the Damned, -equip Wand of Oscus";
 	skillup();
 	try {
 		if (get_property("parts_collection") != override)
@@ -472,13 +456,12 @@ void prep(string override) {
 				if (!contains_text(override,"s"))
 					waitq(3);
 				spelldmgp_value = ((((numeric_modifier($modifier[Spell Damage Percent]) + 100 + 100)/100) * (base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier($modifier[spell damage]) + numeric_modifier(roles[get_property("parts_collection")].ele_mod))) - estimated_spelldmg())/((((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (base_spellD + (myst_boost * (my_buffedstat($stat[mysticality])+100)) + numeric_modifier($modifier[spell damage]) + numeric_modifier(roles[get_property("parts_collection")].ele_mod))* max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)))) - estimated_spelldmg());
-				maximize(`2.8 {roles[get_property("parts_collection")].ele} spell damage, {spelldmgp_value} spell damage percent, mys, -999999 lantern`, false);
+				maximize(`2.8 {roles[get_property("parts_collection")].ele} spell damage, {spelldmgp_value} spell damage percent, mys, -999999 lantern, {banned}`, false);
 				if (settings.get_bool("MTR"))
 					equip($item[Mafia Thumb Ring], $slot[acc3]);
 			}
 		}
-		if (avoid_gear())
-			print("Oops! Looks like you still had gear that may change the element of your attack, putting away now. If you failed the stat check you can rerun.", "olive");
+
 		if ((estimated_spelldmg() < ($monster[normal hobo].monster_hp() + 100) || my_buffedstat($stat[moxie]) < ($monster[normal hobo].monster_attack() + 10)) && get_property("IveGotThis") != "true") {
 			if (estimated_spelldmg() < ($monster[normal hobo].monster_hp() + 100))
 				print("You are expected to do " + estimated_spelldmg() + " damage when casting the hobopolis spell, while you need to deal " + ($monster[normal hobo].monster_hp() + 100) + " damage to guarentee a hobo part from normal hobos.");
@@ -831,14 +814,10 @@ void finishing(int argument) {
 	set_property("battleAction", "custom combat script");
 	set_property("currentMood", "apathetic");
 	set_property("chatbotScript", chatbotScriptStorage);
-	set_property("autoSatisfyWithCloset", autoSatisfyWithClosetStorage);
 	set_property("betweenBattleScript", betweenBattleScriptStorage);
 	set_ccs(customCombatScriptStorage);
 	if (mapimage() == 25 || mapimage() == 26) {
 		set_property("initialized" ,"1");
-		foreach eli in $items[double-ice box, enchanted fire extinguisher, Gazpacho's Glacial Grimoire, witch's bra, Codex of Capsaicin Conjuration, Ol' Scratch's ash can, Ol' Scratch's manacles, Snapdragon pistil, Chester's Aquarius medallion, Engorged Sausages and You, Sinful Desires, slime-covered staff, Necrotelicomnicon, The Necbromancer's Stein, Cookbook of the Damned, Wand of Oscus]
-			if ( closet_amount( eli ) > 0)
-				take_closet(  closet_amount( eli ), eli);
 		print ("It apprears the uberhodge is up, good luck", "green");
 	} else if (argument == 0) {
 		print("Uh oh, there was a (hopefully) one time bug, please rerun hamster", "red");
