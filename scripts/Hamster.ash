@@ -134,7 +134,7 @@ void skillup() {
 			cli_execute("shrug " + ef);
 	foreach sk in $skills[Smooth Movement, Feel Lonely, Hide From Seekers, Get Big, Manicotti Meditation, Song of Sauce, Carol of the Hells, The Sonata of Sneakiness, Stevedave's Shanty of Superiority, The Magical Mojomuscular Melody]
 		if (have_skill(sk))
-			while (have_effect(sk.to_effect()) < 1)
+			if (have_effect(sk.to_effect()) < 1)
 				use_skill(sk);
 }
 
