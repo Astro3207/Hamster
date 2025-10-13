@@ -451,6 +451,7 @@ void prep(string override) {
 		if (settings.get_bool("MTR"))
 			equip($item[Mafia Thumb Ring], $slot[acc3]);
 		if ((estimated_spelldmg() < ($monster[normal hobo].monster_hp() + 100))) {
+			// maximize block depends on outfit not existing
 			if (!(outfit(get_property("parts_collection")))) {
 				print(`No outfit named {get_property("parts_collection")} (capitalization matters), wearing a generic outfit`, "blue");
 				if (!contains_text(override,"s"))
@@ -469,6 +470,7 @@ void prep(string override) {
 				print("You have " + my_buffedstat($stat[moxie]) + " moxie, but you need at least " + ($monster[normal hobo].monster_attack() + 10) + " moxie to safely adventure at town square");
 			abort("It seems you failed one of the stat checks. Condider creating mood that boosts spell damage percent, mainstat, or minimizes ML. If you would like to skip this safety check type \"IveGotThis = true\", but I wouldn't reccomend it TBH");
 		}
+		// so let's set one
 	}
 	finally
 		if (get_property("parts_collection") != remember)
@@ -665,11 +667,13 @@ void until_hodge() {
 		if (tent_open()) {
 			if (settings.get_bool("tent"))
 				exit;
+			// outfit check "tent"
 			foreach cl, it in instruments
 				if (my_class() == cl && get_property("is_mosher") != "true" && !maximize(`-combat, equip {it}`, false))
 					abort("failed to equip a hobo instrument...");
 				if (settings.get_bool("MTR"))
 					equip($item[Mafia Thumb Ring], $slot[acc3]);
+			// save outfit "tent"
 			set_auto_attack(0015);
 			set_ccs ("cleesh free runaway");
 			set_property("moshed", "false");
@@ -801,9 +805,11 @@ void until_hodge() {
 			}
 			cli_execute("chat");
 			skillup();
+			// no way to avoid scobo outfit swap? really? surely one spell outfit works. check...
 			maximize("-combat", false);
 			if (settings.get_bool("MTR"))
 				equip($item[Mafia Thumb Ring], $slot[acc3]);
+			// and set
 		}
 	} until ((mapimage() >= 25 && mapimage() != 125) || num_mosh() >= 8);
 }
