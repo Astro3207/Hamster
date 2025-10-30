@@ -23,7 +23,7 @@ void slow_sewer() {
 		foreach sk in $skills[smooth movement, the sonata of sneakiness, hide from seekers]
 			if (sk.to_effect().have_effect() < 1)
 				use_skill(sk);
-		maximize("-com,equip code binder" + maybe("june cleaver") + maybe("mafia thumb ring")), false);
+		maximize("-com,equip code binder" + maybe("june cleaver") + maybe("mafia thumb ring"), false);
 		adventure(1, $location[A Maze of Sewer Tunnels], "attack; repeat;");
 	} until (get_property("lastEncounter") == "At Last!");
 }
@@ -85,7 +85,7 @@ void main() {
 	}
 	finally {
 		set_auto_attack(0);
-		use_skill($skill[flavour of nothing]);
+		use_skill($skill[spirit of nothing]);
 		set_property("choiceAdventure200", 0);
 		set_property("choiceAdventure225", 0);
 		set_property("choiceAdventure230", 0);
