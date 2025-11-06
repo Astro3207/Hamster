@@ -44,7 +44,7 @@ void gather_part(string part) {
 		if (have_effect(roles[part].spirit_of_ele.to_effect()) == 0)
 			use_skill(roles[part].spirit_of_ele);
 		set_auto_attack($skill[stuffed mortar shell].to_int());
-		macro.append("skill sing along;");
+		macro.append("item seal tooth;");
 		buffs = $skills[carol of the hells,song of sauce];
 		max_on = "-familiar,-100 ml, spell damage percent" + maybe("june cleaver") + maybe("mafia thumb ring");
 	}
