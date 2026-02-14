@@ -29,6 +29,8 @@ void slow_sewer() {
 }
 
 void gather_part(string part) {
+	if (!(my_adventures() > 0 && (mapimage() < 25 || mapimage() == 125) && richmin() < goal))
+		return;
 	buffer macro;
 	string max_on, result;
 	boolean[skill] buffs;
@@ -60,10 +62,9 @@ void gather_part(string part) {
 }
 
 void gather_all(int goal) {
-	while (my_adventures() > 0 && (mapimage() < 25 || mapimage() == 125) && richmin() < goal)
-		foreach part in rich_takes
-			if (richard(part) < goal)
-				gather_part(part);
+	foreach part in rich_takes
+		if (richard(part) < goal)
+			gather_part(part);
 }
 
 void scobo(int many) {
