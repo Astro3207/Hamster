@@ -49,7 +49,7 @@ void gather_part(string part) {
 		max_on = "-familiar,-100 ml, spell damage percent" + maybe("june cleaver") + maybe("mafia thumb ring");
 	}
 	foreach sk in buffs
-		if (sk.to_effect().have_effect() < 1)
+		if (sk.have_skill() && sk.to_effect().have_effect() < 1)
 			use_skill(sk);
 	maximize(max_on, false);
 	write_ccs(macro, "auto_parts");
