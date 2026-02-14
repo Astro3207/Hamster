@@ -240,6 +240,34 @@ void setup() {
 				}
 			}
 		}
+	} else {
+		switch (to_int(get_property("initialized"))) {
+			case 0:
+			case 1:
+				set_property("sewer_progress", 100); //saying that there's 100 chieftans until sewers is clearedW
+				set_property("IveGotThis", "false");
+				set_property("adv_checked", "false");
+				set_property("people_staged" , "0");
+				set_property("moshed" , "false");
+				set_property("people_unstaged" , "0");
+				set_property("tent_stage", "unstarted");
+				set_property("scobo_needed", "");
+				set_property("hpAutoRecovery", 0.5);
+				set_property("hpAutoRecoveryTarget", 0.95);
+				set_property("mpAutoRecovery", 0.25);
+				set_property("mpAutoRecoveryTarget", 0.75);
+				cli_execute("chat");
+				cli_execute("/switch hobopolis");
+				set_property("initialized", 4); //to skip future initializations
+				break;
+			case 2:
+				if (contains_text(sewer_image, "otherimages/hobopolis/sewer3.gif") && !contains_text(sewer_image, "otherimages/hobopolis/deeper.gif"))
+					break;
+				set_property("sewer_progress", 100); //saying that there's 100 chieftans until sewers is cleared
+				break;
+			case 3:
+				set_property("initialized", 4);
+		}
 	}
 	if (!have_skill($skill[CLEESH]))
 		abort("Having CLEESH is essential, and my data says you don't");
