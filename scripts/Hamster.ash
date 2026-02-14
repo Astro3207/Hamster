@@ -348,7 +348,7 @@ void sewer() {
 		if (settings.get_bool("MTR"))
 			equip($item[Mafia Thumb Ring], $slot[acc3]);
 		repeat {
-			if (sewer_progress <= 10 && settings.get_bool("sewucky")) {
+			if ((sewer_progress <= 10 && settings.get_bool("sewucky")) || sewer_progress <= 1) {
 				break;
 			}
 			int[item] testitems = {
@@ -410,7 +410,7 @@ void sewer() {
 		waitq(3);
 	}
 
-	if (settings.get_bool("lucky") || (settings.get_bool("sewucky") && sewer_progress <= 10)) {
+	if (settings.get_bool("lucky") || (settings.get_bool("sewucky") && sewer_progress <= 10 || sewer_progress <= 1)) {
 		if (get_property("parts_collection") == "cagebot")
 			abort("There's no point in doing lucky while being a cagebot? To reset your role (ie mosher or cagebot) type hamster roles");
 		if (item_amount($item[11-leaf clover]) < sewer_progress) { //checks if there is enough clovers
