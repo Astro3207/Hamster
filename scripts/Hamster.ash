@@ -122,8 +122,11 @@ int richard(string part) {
 void post_adv() {
 	if (get_property("_lastCombatLost") == "true")
 		abort("It appears you lost the last combat, look into that");
-	if (my_adventures() == 0)
+	if (my_adventures() == 0 || (my_adventures() <= 10 && my_location() == $location[A Maze of Sewer Tunnels])){
+		if (my_location() == $location[A Maze of Sewer Tunnels])
+			print("Note that you need at least 10 adventures to adventure in sewers");
 		abort("Ran out of adventures");
+	}
 	if (my_inebriety() > inebriety_limit() || (my_inebriety() == inebriety_limit() && my_familiar() == $familiar[stooper]))
 		abort("Looks like you are overdrunk or nearly there with stooper equipped, use a spice melange or something?");
 }
@@ -306,12 +309,14 @@ void sewer() {
 			};
 			foreach it, q in testitems
 				retrieve_item(q, it);
-			if (grates_opened() < 9 && !settings.get_bool("sewers")) {
-				set_property("choiceAdventure198", 3);
-				set_property("choiceAdventure199", 2);
-				set_property("choiceAdventure197", 2);
-			}
-			else {
+			if (sewer_progress <=1 && have_effect($effect[lucky!]) == 0)
+				use($item[11-leaf clover]);
+//			if (grates_opened() < 9 && !settings.get_bool("sewers")) {
+//				set_property("choiceAdventure198", 3);
+//				set_property("choiceAdventure199", 2);
+//				set_property("choiceAdventure197", 2);
+//			}
+//			else {
 				set_property("choiceAdventure198", 1);
 				set_property("choiceAdventure199", 1);
 				set_property("choiceAdventure197", 1);
@@ -319,7 +324,7 @@ void sewer() {
 				maximize("-combat, equip hobo code binder, equip gatorskin umbrella", false);
 				if (settings.get_bool("MTR"))
 					equip($item[Mafia Thumb Ring], $slot[acc3]);
-			}
+//			}
 			string visit_sewers = visit_url("adventure.php?snarfblat=166");
 			int sewer_choice = 0;
 			matcher matcher_sewer_choice = create_matcher("whichchoice value=(\\d+)", visit_sewers);
@@ -351,6 +356,7 @@ void sewer() {
 			post_adv();
 		} until (get_property("lastEncounter") == "At Last!");
 		use_familiar(famrem);
+		waitq(3);
 	}
 
 	if (settings.get_bool("lucky") || (settings.get_bool("sewucky") && sewer_progress <= 10)) {
@@ -381,7 +387,7 @@ void sewer() {
 				if (item_amount($item[11-leaf clover]) > 0) {
 					cli_execute("use 11-leaf clover");
 				} else {
-					print("The script has detected that you have " + have_effect($effect[Lucky!]) + " turns of Lucky! while you have " + item_amount($item[11-leaf clover]) + " 11-leaf clovers");
+					print("The script has detected that you have " + item_amount($item[11-leaf clover]) + " 11-leaf clovers");
 					abort("Lacking clovers????");
 				}
 			}
@@ -784,7 +790,7 @@ void until_hodge() {
 									visit_url("clan_hobopolis.php?preaction=simulacrum&place=3&qty="+ min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins")));
 									waitq(3);
 								}
-								if (tent_open())
+								if (tent_open() || mapimage() == 25)
 									break;
 							}
 						set_property("battleAction", "custom combat script");
