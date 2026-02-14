@@ -60,7 +60,7 @@ void gather_part(string part) {
 }
 
 void gather_all(int goal) {
-	while (my_adventures() > 0 && richmin() < goal)
+	while (my_adventures() > 0 && (mapimage() < 25 || mapimage() == 125) && richmin() < goal)
 		foreach part in rich_takes
 			if (richard(part) < goal)
 				gather_part(part);
