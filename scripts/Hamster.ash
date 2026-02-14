@@ -360,8 +360,6 @@ void sewer() {
 			};
 			foreach it, q in testitems
 				retrieve_item(q, it);
-			if (sewer_progress <=1 && have_effect($effect[lucky!]) == 0)
-				use($item[11-leaf clover]);
 //			if (grates_opened() < 9 && !settings.get_bool("sewers")) {
 //				set_property("choiceAdventure198", 3);
 //				set_property("choiceAdventure199", 2);
