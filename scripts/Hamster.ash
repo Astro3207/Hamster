@@ -126,10 +126,12 @@ void ncforce(){
 			cli_execute("aprilband play tuba");
 		} else if (item_amount($item[Clara's bell]) > 0 && get_property("_claraBellUsed") == false){
 			use($item[Clara's bell]);
-	//	} else if (to_int(get_property("_cinchoRests")) < total_free_rests()){
-	//		while (to_int(get_property("_cinchUsed")) > 40){
-// Needs testing
-	//		}
+		} else if (to_int(get_property("_cinchoRests")) < total_free_rests()){
+			// Needs testing
+			while (to_int(get_property("_cinchUsed")) > 40 && to_int(get_property("_cinchoRests")) < total_free_rests())
+				cli_execute("campground rest free");
+			if (to_int(get_property("_cinchUsed")) < 40)
+				use_skill($skill[Cincho: Fiesta Exit]);
 		} else if (to_int(get_property("_mcHugeLargeAvalancheUses")) < 3) {
 			equip($item[McHugeLarge left ski], $slot[acc2]);
 		} else if (to_int(get_property("_spikolodonSpikeUses")) < 5) {
