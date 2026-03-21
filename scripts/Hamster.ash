@@ -50,6 +50,7 @@ item[class] instruments = {
 string town_map, rlogs;
 string sewer_image = visit_url("clan_hobopolis.php");
 string chatbotScriptStorage = get_property("chatbotScript");
+string mpAutoRecoveryItemsStorage = get_property("mpAutoRecoveryItems");
 string customCombatScriptStorage = get_property("customCombatScript");
 string betweenBattleScriptStorage = get_property("betweenBattleScript");
 int base_spellD;
@@ -193,6 +194,7 @@ void setup() {
 			set_property("initialized", "3");
 
 		set_property("chatbotScript", "HamsterChat.ash");
+		set_property("mpAutoRecoveryItems", get_property("mpAutoRecoveryItems")+";magical mystery juice;doc galaktik's invigorating tonic");
 		set_property("betweenBattleScript","");
 		switch (to_int(get_property("initialized"))) {
 			case 0:
@@ -386,6 +388,7 @@ void sewer() {
 	}
 
 	if (settings.get_bool("lucky") || (settings.get_bool("sewucky") && sewer_progress <= 10 || sewer_progress <= 1)) {
+		set_property("requireSewerTestItems ", false);
 		if (get_property("parts_collection") == "cagebot")
 			abort("There's no point in doing lucky while being a cagebot? To reset your role (ie mosher or cagebot) type hamster roles");
 		if (item_amount($item[11-leaf clover]) < sewer_progress) { //checks if there is enough clovers
@@ -428,13 +431,14 @@ void sewer() {
 			if(get_property("sewer_progress") == "0") {
 				adventure(1, $location[A Maze of Sewer Tunnels]);
 				if (get_property("lastEncounter") != "At Last!")
-					abort("Excpected At Last! instead got" + get_property("lastEncounter"));
+					abort("Excpected At Last! instead got" + get_property("lastEncounter") + " notify Fart Scauce, collecting data on this");
 			}
 		} until (contains_text(town_map , "clan_hobopolis.php?place=3") || to_int(get_property("sewer_progress")) <= 0); //checks if town map is open or the calculations say there are 0 chieftains left
 		print("Sewers complete! (I think)", "orange");
 		set_property("battleAction", "custom combat script");
 	}
 	set_auto_attack(0);
+	set_property("requireSewerTestItems ", false);
 }
 
 // dress up to overkill and make scobo parts
@@ -575,7 +579,7 @@ void collections() {
 			foreach thing in $strings[skins, boots, skulls, eyes, crotches, guts]
 			if (richard(thing) < scobo_start)
 				print(`Looks we are short {scobo_start - richard(thing)} {thing}{thing == "crotch"?"e":""}`);
-			print("Not all parts have been collected, waiting. If you'd like to change roles type hamster roles");
+			print("Not all parts have been collected, waiting. If you'd like to change roles type `hamster roles`");
 			waitq(5);
 			if (richard("boots") >= scobo_start && richard("eyes") >= scobo_start && richard("guts") >= scobo_start && richard("skulls") >= scobo_start && richard("crotches") >= scobo_start && richard("skins") >= scobo_start && mapimage() <= 8)
 				break;
@@ -587,7 +591,7 @@ void collections() {
 void first_tent() {
 	if (get_property("parts_collection") != "scarehobo") {
 		while (!tent_open() && mapimage() <= 12) {
-			print("Tent not opened yet, waiting for designated person to open it");
+			print("Tent not opened yet, waiting for designated person to open it. If you need to change role to scarhobo type `hamster tent` first, then `hamster roles`");
 			waitq(5);
 		}
 		return;
@@ -709,6 +713,7 @@ void until_hodge() {
 			set_auto_attack(0015);
 			set_ccs ("cleesh free runaway");
 			set_property("moshed", "false");
+			set_property ("tent_stage", "finished");
 			int TS_noncom = 0;
 			string town_square = visit_url("adventure.php?snarfblat=167");
 			matcher matcher_TS_noncom = create_matcher("whichchoice value=(\\d+)", town_square); 
@@ -723,6 +728,7 @@ void until_hodge() {
 						run_choice(1);
 						while (get_property("moshed") != "true") {
 							print("At tent, waiting for others to stage and mosher", "blue");
+							print("Let this be a PSA because this has happened too many times: Never EVER click leave the tent. Always click keep performing. Even if you are ghost performing, clicking keep performing will kick you off. If you are ghost performing and you click leave the tent, you will screw over the current mosh.", "orange");
 							waitq(10);
 						}
 						run_choice(1);
@@ -822,7 +828,6 @@ void until_hodge() {
 						set_property("battleAction", "custom combat script");
 						post_adv();
 					}
-					set_property ("tent_stage", "finished");
 				}
 			} else {
 				while (!tent_open() && (mapimage() < 25 || mapimage() == 125)) {
@@ -852,6 +857,7 @@ void finishing(int argument) {
 	set_property("battleAction", "custom combat script");
 	set_property("currentMood", "apathetic");
 	set_property("chatbotScript", chatbotScriptStorage);
+	set_property("mpAutoRecoveryItems", mpAutoRecoveryItemsStorage);
 	set_property("betweenBattleScript", betweenBattleScriptStorage);
 	set_ccs(customCombatScriptStorage);
 	if (mapimage() == 25 || mapimage() == 26) {
