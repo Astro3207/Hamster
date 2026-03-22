@@ -591,7 +591,7 @@ void collections() {
 void first_tent() {
 	if (get_property("parts_collection") != "scarehobo") {
 		while (!tent_open() && mapimage() <= 12) {
-			print("Tent not opened yet, waiting for designated person to open it. If you need to change role to scarhobo type `hamster tent` first, then `hamster roles`");
+			print("Tent not opened yet, waiting for designated person to open it. If you need to change role to scarhobo AND someone has already started, type `hamster tent` first, then `hamster roles`");
 			waitq(5);
 		}
 		return;
@@ -731,7 +731,11 @@ void until_hodge() {
 							print("Let this be a PSA because this has happened too many times: Never EVER click leave the tent. Always click keep performing. Even if you are ghost performing, clicking keep performing will kick you off. If you are ghost performing and you click leave the tent, you will screw over the current mosh.", "orange");
 							waitq(10);
 						}
-						run_choice(1);
+						town_map = visit_url("clan_hobopolis.php?place=2");
+						while (contains_text(town_map,"Up On Stage"))
+							town_map = visit_url("clan_hobopolis.php?place=2");
+							run_choice(1);
+						}
 						chat_clan("offstage" , "hobopolis" );
 						waitq(3);
 					}
