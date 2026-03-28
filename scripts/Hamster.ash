@@ -13,6 +13,7 @@ string[string] settings = {
 	"skulls": "0",
 	"crotches": "0",
 	"skins": "0",
+	"ncforce": get_property("HaNC"),
 	"MTR" : get_property("HaMTR")
 };
 record role {
@@ -120,6 +121,27 @@ int richard(string part) {
 	return part_count;
 }
 
+void ncforce(){
+	if (get_property("noncombatForcerActive") == false){
+		if (item_amount($item[Apriling band tuba]) > 0 && to_int(get_property("_aprilBandTubaUses")) < 3){
+			cli_execute("aprilband play tuba");
+		} else if (item_amount($item[Clara's bell]) > 0 && get_property("_claraBellUsed") == false){
+			use($item[Clara's bell]);
+		} else if (to_int(get_property("_cinchoRests")) < total_free_rests()){
+			// Needs testing
+			while (to_int(get_property("_cinchUsed")) > 40 && to_int(get_property("_cinchoRests")) < total_free_rests())
+				cli_execute("campground rest free");
+			if (to_int(get_property("_cinchUsed")) < 40)
+				use_skill($skill[Cincho: Fiesta Exit]);
+		} else if (to_int(get_property("_mcHugeLargeAvalancheUses")) < 3) {
+			equip($item[McHugeLarge left ski], $slot[acc2]);
+		} else if (to_int(get_property("_spikolodonSpikeUses")) < 5) {
+			equip($item[jurassic parka]);
+			cli_execute("parka spikolodon");
+		}
+	}
+}
+
 void post_adv() {
 	if (get_property("_lastCombatLost") == "true")
 		abort("It appears you lost the last combat, look into that");
@@ -146,17 +168,27 @@ float estimated_spelldmg() {
 	float estimate;
 	if (get_auto_attack() == 1005) {
 		float SC_bonus = (my_class() == $class[seal clubber]) ? 1.3 : 1.25;
-		estimate = (floor((my_buffedstat($stat[muscle])*SC_bonus)-$monster[normal hobo].base_defense) + numeric_modifier("weapon damage")) * ((max(numeric_modifier("weapon damage percent"),0) + 100)/100) * max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)));
+    	estimate = (floor((my_buffedstat($stat[muscle])*SC_bonus)-$monster[normal hobo].base_defense) + (numeric_modifier("weapon damage")-(get_power(equipped_item($slot[weapon]))*0.05))* 3) * ((max(numeric_modifier("weapon damage percent"),0) + 100)/100) * max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)));
 	} else {
 		estimate = ((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier(roles[get_property("parts_collection")].ele_mod) + numeric_modifier($modifier[spell damage])) * max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)));
 	}
 	return estimate;
 }
 
+void onStageStatusUnknown(){
+	print("You are up on stage right now with status of mosh unknown, executing emergency protocol.","orange");
+	while (contains_text(town_map,"Up On Stage")){
+		town_map = visit_url("clan_hobopolis.php?place=2");
+		run_choice(1);
+		wait (3);
+	}
+	chat_clan("offstage" , "hobopolis" );
+	waitq(3);
+}
+
 void setup() {
-	buffer ccs = "if hasskill snokebomb; skill snokebomb; endif;if !monstername frog && !monstername newt && !monstername salamander; skill CLEESH; endif; attack;";
-	if (to_string(read_ccs("cleesh free runaway")) == "")
-		write_ccs(ccs, "cleesh free runaway");
+	buffer ccs = "if hasskill snokebomb; skill snokebomb; endif;if !monstername frog && !monstername newt && !monstername salamander; skill CLEESH; endif; if hasskill McHugeLarge Avalanche; skill McHugeLarge Avalanche; endif; if hasskill Launch spikolodon spikes; skill Launch spikolodon spikes; endif; attack;";
+	write_ccs(ccs, "cleesh free runaway");
 	if (have_skill($skill[stuffed mortar shell])) {
 		if (item_amount($item[seal tooth]) == 0)
 			cli_execute("acquire seal tooth");
@@ -165,11 +197,14 @@ void setup() {
 	}
 	set_property("battleAction", "custom combat script");
 	set_property("HaMTR", settings.get_bool("MTR"));
+	set_property("HaNC", settings.get_bool("ncforce"));
+	set_property("chatbotScript", "HamsterChat.ash");
 
 	if (!settings.get_bool("sewers")) {
 		if (settings.get_bool("help")) {
 			print_html("<b><font color=0000ff>hamster roles</font color=0000ff></b> will allow you to change your role and keep running");
 			print_html("<b><font color=0000ff>hamster MTR=[true|false]</font color=0000ff></b> if set to true an override for mafia thumb ring to acc3 will be put in");
+			print_html("<b><font color=0000ff>hamster ncforce=[true|false]</font color=0000ff></b> if set to true, will use available NC forcers for tent. Supported  sneaks: McHugeLarge Avalanche, Apriling band tuba, Cincho: Fiesta Exit, Jurassic Parka spikolodons, Clara's bell");
 			print_html("<font color=0000ff><b>hamster <i>parts=int</i></font color=0000ff></b> options are:[boots | eyes | guts | skulls | crotches | skins] will allow you to collect the specified number of parts");
 			print_html("<font color=0000ff><b>hamster sewers</b></font color=0000ff> will complete sewers (no grates and no lucky) and exit. Probably not the best bang for your buck for personal use.");
 			print_html("<font color=0000ff><b>hamster sewucky</b></font color=0000ff> will use lucky to complete the last 10 explorations. Costs on average 5 clovers+adventures to save 1 trncount per person or up to 7 in total.");
@@ -178,6 +213,11 @@ void setup() {
 			exit;
 		}
 		
+		town_map = visit_url("clan_hobopolis.php?place=2");
+		if (contains_text(town_map,"Up On Stage")){	
+			onStageStatusUnknown();					
+		}
+
 		if (!contains_text(visit_url("clan_basement.php?fromabove=1"), "opengrate.gif"))
 			abort("Either you are in a choice or hobopolis isn't open yet");
 			
@@ -193,9 +233,9 @@ void setup() {
 		if (settings.get_bool("roles"))
 			set_property("initialized", "3");
 
-		set_property("chatbotScript", "HamsterChat.ash");
 		set_property("mpAutoRecoveryItems", get_property("mpAutoRecoveryItems")+";magical mystery juice;doc galaktik's invigorating tonic");
 		set_property("betweenBattleScript","");
+
 		switch (to_int(get_property("initialized"))) {
 			case 0:
 			case 1:
@@ -459,7 +499,7 @@ void prep(string override) {
 			if (!contains_text(override,"s"))
 				waitq(3);
 			print(`No custom combat script named {get_property("parts_collection")} (capitalization matters) or stuffed mortar shell, setting auto attack to stuffed mortar shell (or hobopolis skill if you don\'t have that)`, "blue");
-			if (!set_ccs("auto_parts") || !have_skill($skill[Flavour of Magic]) || get_property("parts_collection") == "skins") {
+			if (!set_ccs("auto_parts") || !have_skill($skill[Flavour of Magic]) || (get_property("parts_collection") == "skins" && !have_skill($skill[Lunging Thrust-Smack]))) {
 				if (!have_skill(roles[get_property("parts_collection")].atk_spell)) {
 					abort(`Missing skill {roles[get_property("parts_collection")].atk_spell}, please set a ccs named {get_property("parts_collection")}`);
 				} else {
@@ -469,11 +509,16 @@ void prep(string override) {
 					set_property("battleAction","skill " + roles[get_property("parts_collection")].atk_spell);
 				}
 			} else {
-				set_property("battleAction", "custom combat script");
-				if (get_auto_attack() != 3007)
-					set_auto_attack(3007);
-				base_spellD = 32;
-				myst_boost = 0.5;
+				if (get_property("parts_collection") == "skins"){
+					if (get_auto_attack() != 1005)
+						set_auto_attack(1005);
+				} else {
+					set_property("battleAction", "custom combat script");
+					if (get_auto_attack() != 3007)
+						set_auto_attack(3007);
+					base_spellD = 32;
+					myst_boost = 0.5;
+				}
 			}
 		} else {
 			print("Since you have a ccs set the stat check will not be accurate since I don't know what spell you chose", "blue");
@@ -492,16 +537,31 @@ void prep(string override) {
 				print(`No outfit named {get_property("parts_collection")} (capitalization matters), wearing a generic outfit`, "blue");
 				if (!contains_text(override,"s"))
 					waitq(3);
+				if (get_auto_attack() == 1005){
+					maximize(`muscle, 10 weapon damage percent, {banned}`,false);
+					if (settings.get_bool("MTR"))
+						equip($item[Mafia Thumb Ring], $slot[acc3]);
+					int targetWDP = ($monster[normal hobo].monster_hp() + 100)/(estimated_spelldmg()/(((max(numeric_modifier("weapon damage percent"),0) + 100)/100) * max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004))))) * 100 - 100;
+					if (targetWDP > numeric_modifier("weapon damage percent"))
+						cli_execute("gain " + targetWDP + " weapon damage percent 5000 maxmeatspent");
+				} else {
 				spelldmgp_value = ((((numeric_modifier($modifier[Spell Damage Percent]) + 100 + 100)/100) * (base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier($modifier[spell damage]) + numeric_modifier(roles[get_property("parts_collection")].ele_mod))) - estimated_spelldmg())/((((numeric_modifier($modifier[Spell Damage Percent]) + 100)/100) * (base_spellD + (myst_boost * (my_buffedstat($stat[mysticality])+100)) + numeric_modifier($modifier[spell damage]) + numeric_modifier(roles[get_property("parts_collection")].ele_mod))* max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)))) - estimated_spelldmg());
 				maximize(`2.8 {roles[get_property("parts_collection")].ele} spell damage, {spelldmgp_value} spell damage percent, mys, -999999 lantern, {banned}`, false);
 				if (settings.get_bool("MTR"))
 					equip($item[Mafia Thumb Ring], $slot[acc3]);
+					int targetSDP = ($monster[normal hobo].monster_hp() + 100)/max(0.50,(1-(numeric_modifier($modifier[monster level])*0.004)))/(base_spellD + (myst_boost * my_buffedstat($stat[mysticality])) + numeric_modifier($modifier[spell damage])) * 100 - 100;
+					if (targetSDP > numeric_modifier("spell damage percent"))
+						cli_execute("gain " + targetSDP + " spell damage percent 5000 maxmeatspent");
+				}
 			}
 		}
-
+		if (my_buffedstat($stat[moxie]) < ($monster[normal hobo].monster_attack() + 10)){
+			int targMox = $monster[normal hobo].monster_attack() + 10;
+			cli_execute("gain " + targMox + " moxie 5000 maxmeatspent");
+		}
 		if ((estimated_spelldmg() < ($monster[normal hobo].monster_hp() + 100) || my_buffedstat($stat[moxie]) < ($monster[normal hobo].monster_attack() + 10)) && get_property("IveGotThis") != "true") {
 			if (estimated_spelldmg() < ($monster[normal hobo].monster_hp() + 100))
-				print("You are expected to do " + estimated_spelldmg() + " damage when casting the hobopolis spell, while you need to deal " + ($monster[normal hobo].monster_hp() + 100) + " damage to guarentee a hobo part from normal hobos.");
+				print("You are expected to do " + estimated_spelldmg() + " damage when casting your spell, while you need to deal " + ($monster[normal hobo].monster_hp() + 100) + " damage to guarantee a hobo part from normal hobos.");
 			if (my_buffedstat($stat[moxie]) < ($monster[normal hobo].monster_attack() + 10))
 				print("You have " + my_buffedstat($stat[moxie]) + " moxie, but you need at least " + ($monster[normal hobo].monster_attack() + 10) + " moxie to safely adventure at town square");
 			abort("It seems you failed one of the stat checks. Condider creating mood that boosts spell damage percent, mainstat, or minimizes ML. If you would like to skip this safety check type \"IveGotThis = true\", but I wouldn't reccomend it TBH");
@@ -709,6 +769,8 @@ void until_hodge() {
 					abort("failed to equip a hobo instrument...");
 				if (settings.get_bool("MTR"))
 					equip($item[Mafia Thumb Ring], $slot[acc3]);
+				if (settings.get_bool("ncforce"))
+					ncforce();
 			// save outfit "tent"
 			set_auto_attack(0015);
 			set_ccs ("cleesh free runaway");
@@ -732,7 +794,7 @@ void until_hodge() {
 							waitq(10);
 						}
 						town_map = visit_url("clan_hobopolis.php?place=2");
-						while (contains_text(town_map,"Up On Stage"))
+						while (contains_text(town_map,"Up On Stage")){
 							town_map = visit_url("clan_hobopolis.php?place=2");
 							run_choice(1);
 						}
