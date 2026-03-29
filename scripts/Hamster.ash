@@ -220,6 +220,9 @@ void setup() {
 
 		if (!contains_text(visit_url("clan_basement.php?fromabove=1"), "opengrate.gif"))
 			abort("Either you are in a choice or hobopolis isn't open yet");
+		
+		if (!contains_text(visit_url("clan_hobopolis.php"), "You don't have access to Hobopolis"))
+			abort("You need a whitelist in this clan");
 			
 		if ((get_property("initialized") == "1") || get_property("initialized") == "") {
 			if (contains_text(sewer_image,"otherimages/hobopolis/sewer3.gif") && !user_confirm("The script has detected that you have not been given a role and you have already started sewers. Press yes to continue to assign your role, press no to abort and figure out what happened"))
@@ -428,7 +431,7 @@ void sewer() {
 	}
 
 	if (settings.get_bool("lucky") || (settings.get_bool("sewucky") && sewer_progress <= 10 || sewer_progress <= 1)) {
-		set_property("requireSewerTestItems ", false);
+		set_property("requireSewerTestItems", false);
 		if (get_property("parts_collection") == "cagebot")
 			abort("There's no point in doing lucky while being a cagebot? To reset your role (ie mosher or cagebot) type hamster roles");
 		if (item_amount($item[11-leaf clover]) < sewer_progress) { //checks if there is enough clovers
@@ -478,7 +481,7 @@ void sewer() {
 		set_property("battleAction", "custom combat script");
 	}
 	set_auto_attack(0);
-	set_property("requireSewerTestItems ", false);
+	set_property("requireSewerTestItems", true);
 }
 
 // dress up to overkill and make scobo parts
@@ -788,9 +791,9 @@ void until_hodge() {
 				if (TS_noncom == 225) {
 					if (get_property("is_mosher") != "true") {
 						run_choice(1);
+						print("Let this be a PSA because this has happened too many times: Never EVER click leave the tent. Always click keep performing. Even if you are ghost performing, clicking keep performing will kick you off. If you are ghost performing and you click leave the tent, you will screw over the current mosh.", "orange");
 						while (get_property("moshed") != "true") {
 							print("At tent, waiting for others to stage and mosher", "blue");
-							print("Let this be a PSA because this has happened too many times: Never EVER click leave the tent. Always click keep performing. Even if you are ghost performing, clicking keep performing will kick you off. If you are ghost performing and you click leave the tent, you will screw over the current mosh.", "orange");
 							waitq(10);
 						}
 						town_map = visit_url("clan_hobopolis.php?place=2");
@@ -878,18 +881,18 @@ void until_hodge() {
 					while (!tent_open()) {
 						foreach part in roles if (!($strings[scarehobo, cagebot] contains part))
 							if (richard(part) == min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins"))) {
+								while ((num_mosh() >= 8 || settings.get_bool("tent")) && min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins")) >= 1 && !tent_open()) {
+									print("Making 1 Scobo...", "orange");
+									visit_url("clan_hobopolis.php?preaction=simulacrum&place=3&qty=1");
+									waitq(3);
+								}
+								if (tent_open() || mapimage() == 25)
+									break;
 								prep(part);
 								adventure(1, $location[Hobopolis Town Square]);
 								if (!contains_text(LastAdvTxt(), rich_takes[part])  && last_monster() == $monster[normal hobo])
 									abort(`Richard failed to take {part}`);
 								post_adv();
-								if ((num_mosh() >= 7 || settings.get_bool("tent")) && min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins")) >= 1) {
-									print("Making 1 Scobo...", "orange");
-									visit_url("clan_hobopolis.php?preaction=simulacrum&place=3&qty="+ min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins")));
-									waitq(3);
-								}
-								if (tent_open() || mapimage() == 25)
-									break;
 							}
 						set_property("battleAction", "custom combat script");
 						post_adv();
