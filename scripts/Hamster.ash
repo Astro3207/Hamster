@@ -794,6 +794,7 @@ void until_hodge() {
 						print("Let this be a PSA because this has happened too many times: Never EVER click leave the tent. Always click keep performing. Even if you are ghost performing, clicking keep performing will kick you off. If you are ghost performing and you click leave the tent, you will screw over the current mosh.", "orange");
 						while (get_property("moshed") != "true") {
 							print("At tent, waiting for others to stage and mosher", "blue");
+							print("Let this be a PSA because this has happened too many times: Never EVER click leave the tent. Always click keep performing. Even if you are ghost performing, clicking keep performing will kick you off. If you are ghost performing and you click leave the tent, you will screw over the current mosh.", "orange");
 							waitq(10);
 						}
 						town_map = visit_url("clan_hobopolis.php?place=2");

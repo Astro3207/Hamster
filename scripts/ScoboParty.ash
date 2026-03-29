@@ -29,6 +29,8 @@ void slow_sewer() {
 }
 
 void gather_part(string part) {
+	if (!(my_adventures() > 0 && (mapimage() < 25 || mapimage() == 125) && richmin() < goal))
+		return;
 	buffer macro;
 	string max_on, result;
 	boolean[skill] buffs;
@@ -49,7 +51,7 @@ void gather_part(string part) {
 		max_on = "-familiar,-100 ml, spell damage percent" + maybe("june cleaver") + maybe("mafia thumb ring");
 	}
 	foreach sk in buffs
-		if (sk.to_effect().have_effect() < 1)
+		if (sk.have_skill() && sk.to_effect().have_effect() < 1)
 			use_skill(sk);
 	maximize(max_on, false);
 	write_ccs(macro, "auto_parts");
@@ -60,10 +62,9 @@ void gather_part(string part) {
 }
 
 void gather_all(int goal) {
-	while (my_adventures() > 0 && richmin() < goal)
-		foreach part in rich_takes
-			if (richard(part) < goal)
-				gather_part(part);
+	foreach part in rich_takes
+		if (richard(part) < goal)
+			gather_part(part);
 }
 
 void scobo(int many) {
