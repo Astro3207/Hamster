@@ -221,8 +221,8 @@ void setup() {
 		if (!contains_text(visit_url("clan_basement.php?fromabove=1"), "opengrate.gif"))
 			abort("Either you are in a choice or hobopolis isn't open yet");
 		
-		if (!contains_text(visit_url("clan_hobopolis.php"), "You don't have access to Hobopolis"))
-			abort("You need a whitelist in this clan");
+		if (contains_text(visit_url("clan_hobopolis.php"), "You don't have access to Hobopolis"))
+			abort("You need permissions to hobopolis in this clan");
 			
 		if ((get_property("initialized") == "1") || get_property("initialized") == "") {
 			if (contains_text(sewer_image,"otherimages/hobopolis/sewer3.gif") && !user_confirm("The script has detected that you have not been given a role and you have already started sewers. Press yes to continue to assign your role, press no to abort and figure out what happened"))
