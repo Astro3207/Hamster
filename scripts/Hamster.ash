@@ -491,7 +491,7 @@ void prep(string override) {
 	if ($strings[scarehobo, cagebot] contains get_property("parts_collection") && override == get_property("parts_collection"))
 		return;
 	string remember = get_property("parts_collection");
-	string banned = "-equip double-ice box, -equip enchanted fire extinguisher, -equip Gazpacho's Glacial Grimoire, -equip witch's bra, -equip Codex of Capsaicin Conjuration, -equip Ol' Scratch's ash can, -equip Ol' Scratch's manacles, -equip Snapdragon pistil, -equip Chester's Aquarius medallion, -equip Engorged Sausages and You, -equip Sinful Desires, -equip slime-covered staff, -equip Necrotelicomnicon, -equip The Necbromancer's Stein, -equip Cookbook of the Damned, -equip Wand of Oscus";
+	string banned = "-equip double-ice box, -equip enchanted fire extinguisher, -equip Gazpacho's Glacial Grimoire, -equip witch's bra, -equip Codex of Capsaicin Conjuration, -equip Ol' Scratch's ash can, -equip Ol' Scratch's manacles, -equip Snapdragon pistil, -equip Chester's Aquarius medallion, -equip Engorged Sausages and You, -equip Sinful Desires, -equip slime-covered staff, -equip Necrotelicomnicon, -equip The Necbromancer's Stein, -equip Cookbook of the Damned, -equip Wand of Oscus, -equip porcelain porkpie";
 	skillup();
 	try {
 		if (get_property("parts_collection") != override)
