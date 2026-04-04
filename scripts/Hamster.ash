@@ -794,7 +794,6 @@ void until_hodge() {
 						print("Let this be a PSA because this has happened too many times: Never EVER click leave the tent. Always click keep performing. Even if you are ghost performing, clicking keep performing will kick you off. If you are ghost performing and you click leave the tent, you will screw over the current mosh.", "orange");
 						while (get_property("moshed") != "true") {
 							print("At tent, waiting for others to stage and mosher", "blue");
-							print("Let this be a PSA because this has happened too many times: Never EVER click leave the tent. Always click keep performing. Even if you are ghost performing, clicking keep performing will kick you off. If you are ghost performing and you click leave the tent, you will screw over the current mosh.", "orange");
 							waitq(10);
 						}
 						town_map = visit_url("clan_hobopolis.php?place=2");
@@ -882,7 +881,7 @@ void until_hodge() {
 					while (!tent_open()) {
 						foreach part in roles if (!($strings[scarehobo, cagebot] contains part))
 							if (richard(part) == min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins"))) {
-								while ((num_mosh() >= 8 || settings.get_bool("tent")) && min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins")) >= 1 && !tent_open()) {
+								while ((num_mosh() >= 7 || settings.get_bool("tent")) && min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins")) >= 1 && !tent_open() && mapimage() < 25) {
 									print("Making 1 Scobo...", "orange");
 									visit_url("clan_hobopolis.php?preaction=simulacrum&place=3&qty=1");
 									waitq(3);
