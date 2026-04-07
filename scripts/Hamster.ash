@@ -454,7 +454,7 @@ void sewer() {
 			waitq(3);
 			set_property("battleAction", "attack with weapon");
 		}
-		repeat { //using 11-leaf clover before adventuring in sewers once
+		while (!contains_text(town_map , "clan_hobopolis.php?place=3") && to_int(get_property("sewer_progress")) > 0) { //using 11-leaf clover before adventuring in sewers once
 			if ((have_effect($effect[Lucky!]) == 0)) {
 				if (item_amount($item[11-leaf clover]) > 0) {
 					cli_execute("use 11-leaf clover");
@@ -471,12 +471,12 @@ void sewer() {
 			set_property("sewer_progress", sewer_progress);
 			print("C.H.U.M Chieftans left: " + sewer_progress, "orange");
 			town_map = visit_url("clan_hobopolis.php?place=2");
-			if(get_property("sewer_progress") == "0") {
-				adventure(1, $location[A Maze of Sewer Tunnels]);
-				if (get_property("lastEncounter") != "At Last!")
-					abort("Excpected At Last! instead got" + get_property("lastEncounter") + " notify Fart Scauce, collecting data on this");
-			}
-		} until (contains_text(town_map , "clan_hobopolis.php?place=3") || to_int(get_property("sewer_progress")) <= 0); //checks if town map is open or the calculations say there are 0 chieftains left
+		} //checks if town map is open or the calculations say there are 0 chieftains left
+		if(!contains_text(town_map , "clan_hobopolis.php?place=3") && get_property("sewer_progress") <= "0") {
+			adventure(1, $location[A Maze of Sewer Tunnels]);
+			if (get_property("lastEncounter") != "At Last!")
+				abort("Excpected At Last! instead got" + get_property("lastEncounter") + " notify Fart Scauce, collecting data on this");
+		}
 		print("Sewers complete! (I think)", "orange");
 		set_property("battleAction", "custom combat script");
 	}
