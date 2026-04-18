@@ -1,5 +1,4 @@
 import hamster
-
 int goal = 1;
 
 int richmin() {
@@ -42,13 +41,13 @@ void gather_part(string part) {
 		set_auto_attack(1);
 		macro.append("attack; repeat;");
 		buffs = $skills[carol of the bulls,blood frenzy,song of the north];
-		max_on = "-familiar,-100 ml, weapon damage percent" + maybe("june cleaver") + maybe("mafia thumb ring");
+		max_on = "-familiar,-100 ml, weapon damage percent, -elemental damage, -equip june cleaver" + maybe("mafia thumb ring");
 	}
 	else {
 		if (have_effect(roles[part].spirit_of_ele.to_effect()) == 0)
 			use_skill(roles[part].spirit_of_ele);
 		set_auto_attack($skill[stuffed mortar shell].to_int());
-		macro.append("item seal tooth;");
+		macro.append("if hasskill mortar; skill mortar; endif; use seal tooth; repeat;");
 		buffs = $skills[carol of the hells,song of sauce];
 		max_on = "-familiar,-100 ml, spell damage percent" + maybe("june cleaver") + maybe("mafia thumb ring");
 	}
@@ -76,6 +75,7 @@ void scobo(int many) {
 
 void main() {
 	try {
+		cli_execute("try; familiar snapper; snapper hobo;");
 		slow_sewer();
 		set_property("choiceAdventure200", 2);
 		set_property("choiceAdventure225", 3);
