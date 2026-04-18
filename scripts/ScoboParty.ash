@@ -1,5 +1,7 @@
 import hamster
 
+int goal = 1;
+
 int richmin() {
 	int out = 999;
 	foreach part in rich_takes
