@@ -61,6 +61,7 @@ string LastAdvTxt() {
 	string lastlog = session_logs(1)[0];
 	int nowmark = max(lastlog.last_index_of(`[{my_turncount()}]`), lastlog.last_index_of(`[{my_turncount()}]`));
 	if (nowmark == -1){
+		print("session log parse failure"); //debugging line
 		waitq(3);
 		lastlog = session_logs(1)[0];
 		nowmark = max(lastlog.last_index_of(`[{my_turncount()}]`), lastlog.last_index_of(`[{my_turncount()}]`));
@@ -129,8 +130,8 @@ void ncforce(){
 			use($item[Clara's bell]);
 		} else if (to_int(get_property("_cinchoRests")) < total_free_rests()){
 			// Needs testing
-			while (to_int(get_property("_cinchUsed")) > 40 && to_int(get_property("_cinchoRests")) < total_free_rests())
-				cli_execute("campground rest free");
+			while (to_int(get_property("_cinchUsed")) > 40 && to_int(get_property("timesRested")) < total_free_rests())
+				cli_execute("unequip hat; campground rest free; equip reinforced beaded headband");
 			if (to_int(get_property("_cinchUsed")) < 40)
 				use_skill($skill[Cincho: Fiesta Exit]);
 		} else if (to_int(get_property("_mcHugeLargeAvalancheUses")) < 3) {
