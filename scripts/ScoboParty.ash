@@ -41,7 +41,7 @@ void gather_part(string part) {
 		set_auto_attack(1);
 		macro.append("attack; repeat;");
 		buffs = $skills[carol of the bulls,blood frenzy,song of the north];
-		max_on = "-familiar,-100 ml, weapon damage percent, -elemental damage, -equip june cleaver" + maybe("mafia thumb ring");
+		max_on = "-familiar,-100 ml, weapon damage percent, -elemental damage, -equip june cleaver";
 	}
 	else {
 		if (have_effect(roles[part].spirit_of_ele.to_effect()) == 0)
@@ -49,12 +49,12 @@ void gather_part(string part) {
 		set_auto_attack($skill[stuffed mortar shell].to_int());
 		macro.append("if hasskill mortar; skill mortar; endif; use seal tooth; repeat;");
 		buffs = $skills[carol of the hells,song of sauce];
-		max_on = "-familiar,-100 ml, spell damage percent" + maybe("june cleaver") + maybe("mafia thumb ring");
+		max_on = "-familiar,-100 ml, spell damage percent" + maybe("june cleaver");
 	}
 	foreach sk in buffs
 		if (sk.have_skill() && sk.to_effect().have_effect() < 1)
 			use_skill(sk);
-	maximize(max_on, false);
+	maximize(max_on + maybe("mafia thumb ring") + maybe("pantsgiving"), false);
 	write_ccs(macro, "auto_parts");
 	set_ccs("auto_parts");
 	result = cli_execute("adv 1 town square");
@@ -75,8 +75,9 @@ void scobo(int many) {
 
 void main() {
 	try {
-		cli_execute("try; familiar snapper; snapper hobo;");
+		string lastmacro = get_property("customCombatScript");
 		slow_sewer();
+		cli_execute("try; familiar snapper; snapper hobo;");
 		set_property("choiceAdventure200", 2);
 		set_property("choiceAdventure225", 3);
 		set_property("choiceAdventure230", 2);
@@ -88,6 +89,7 @@ void main() {
 	}
 	finally {
 		set_auto_attack(0);
+		set_ccs(lastmacro);
 		use_skill($skill[spirit of nothing]);
 		set_property("choiceAdventure200", 0);
 		set_property("choiceAdventure225", 0);
