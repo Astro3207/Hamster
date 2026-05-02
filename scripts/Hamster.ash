@@ -879,7 +879,7 @@ void until_hodge() {
 					wait(3);
 				}
 				if (get_property("tent_stage") == "step1") {
-					while (!tent_open()) {
+					while (!tent_open() && mapimage() != 25) {
 						foreach part in roles if (!($strings[scarehobo, cagebot] contains part))
 							if (richard(part) == min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins"))) {
 								while ((num_mosh() >= 7 || settings.get_bool("tent")) && min(richard("boots"), richard("eyes"), richard("guts"), richard("skulls"), richard("crotches"), richard("skins")) >= 1 && !tent_open() && mapimage() < 25) {
