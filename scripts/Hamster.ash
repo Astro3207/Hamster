@@ -183,8 +183,12 @@ void onStageStatusUnknown(){
 		run_choice(1);
 		wait (3);
 	}
+	set_property("chatCheck","true");
+	waitq(1);
 	chat_clan("offstage" , "hobopolis" );
 	waitq(3);
+	if (get_property("chatCheck") == "true")
+		abort("Chat message failed to send, this is a known mafia bug. Restart mafia, make sure to close out of the login screen too");
 }
 
 void setup() {
@@ -802,8 +806,12 @@ void until_hodge() {
 							town_map = visit_url("clan_hobopolis.php?place=2");
 							run_choice(1);
 						}
+						set_property("chatCheck","true");
+						waitq(1);
 						chat_clan("offstage" , "hobopolis" );
 						waitq(3);
+						if (get_property("chatCheck") == "true")
+							abort("Chat message failed to send, this is a known mafia bug. Restart mafia, make sure to close out of the login screen too");
 					}
 					if (get_property("is_mosher") == "true") {
 						while (to_int(get_property("people_staged")) < 6) {
