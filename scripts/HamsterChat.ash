@@ -18,7 +18,7 @@ void main (string sender , string message, string channel){
          people_unstaged += 1;
          set_property("people_unstaged" , people_unstaged);
       }
-      if (to_lower_case(sender) == my_name())
+      if (to_lower_case(sender) == to_lower_case(my_name()))
          set_property("chatCheck","false");
    }
 }
