@@ -1,4 +1,4 @@
-import hamster
+import <Hamster.ash>
 int goal = 1;
 
 int richmin() {
