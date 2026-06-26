@@ -54,7 +54,7 @@ void gather_part(string part) {
 	foreach sk in buffs
 		if (sk.have_skill() && sk.to_effect().have_effect() < 1)
 			use_skill(sk);
-	maximize(max_on + maybe("mafia thumb ring") + maybe("pantsgiving"), false);
+	maximize(max_on + maybe("mafia thumb ring") + maybe("pantsgiving") + "," + banned, false);
 	write_ccs(macro, "auto_parts");
 	set_ccs("auto_parts");
 	result = cli_execute("adv 1 town square");
