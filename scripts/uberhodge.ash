@@ -46,6 +46,17 @@ void hodge(){
         int to_cast = min(((max(0,39010-have_effect($effect[Takin\' It Greasy])))/10),my_mp()/15);
         cli_execute("cast " + to_cast +" Grease Up");
     }
+    if (numeric_modifier($modifier[monster level]) > 0){
+        if (user_confirm("Monster level above 0, uneffect as necessary?")){
+            foreach ef in my_effects( ){
+                if (numeric_modifier(ef,$modifier[monster level]) > 0)
+                    cli_execute("uneffect "+ ef);
+            }
+            if (current_mcd() > 0){
+                change_mcd(0);
+            }
+        }
+    }
     cli_execute("maximize init");
     set_auto_attack("Unleash the Greash");
     if (mapimage() == 25){
