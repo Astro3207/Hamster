@@ -21,7 +21,12 @@ void hodge(){
         abort("Missing skill grease up");
     }
     cli_execute("maximize -1000 Stackable Mana Cost, mp");
-    int cost = (((mp_cost( $skill[Grease Up] )-6) * 3901)/10) * npc_price( $item[Doc Galaktik\'s Invigorating Tonic] );
+    int n;
+    if (have_effect($effect[Arcane in the Brain]) > 0)
+        n += 3;
+    if (have_effect($effect[The Odour of Magick]) > 0)
+        n += 3;
+    int cost = (((mp_cost( $skill[Grease Up] )-n) * 3901)/10) * npc_price( $item[Doc Galaktik\'s Invigorating Tonic] );
     if (!user_confirm ("This will cost an estimated " + cost + " meat (not including jewel-eyed wizard hat) and one pocket wish. For cost savings see the wiki for Skill MP Cost Modifiers and NPC Store Price Modifiers and completing Doc Galaktik's Quest. Continue with buffing up?")){
         abort();
     } else {
@@ -56,6 +61,10 @@ void hodge(){
                 change_mcd(0);
             }
         }
+    }
+    foreach ef in $effects[beaten up]{
+        if (have_effect(ef) > 0)
+            cli_execute("uneffect " + ef);
     }
     cli_execute("maximize init");
     set_auto_attack("Unleash the Greash");
